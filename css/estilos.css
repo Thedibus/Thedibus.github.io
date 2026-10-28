@@ -1,6 +1,6 @@
 ﻿/* ==========================================================================
-   Mesa de HÃ©roes Â· hoja de estilos
-   Un Ãºnico archivo para el popover, la tarjeta de token y el diÃ¡logo.
+   Mesa de HÃƒÂ©roes Ã‚Â· hoja de estilos
+   Un ÃƒÂºnico archivo para el popover, la tarjeta de token y el diÃƒÂ¡logo.
    ========================================================================== */
 
 :root {
@@ -423,7 +423,7 @@ img, svg { display: block; }
 .interruptor strong { font-size: 12.5px; font-weight: 600; }
 .interruptor span { font-size: 11.5px; color: var(--texto-tenue); }
 
-/* ---------------------------------------------------------------- diÃ¡logo  */
+/* ---------------------------------------------------------------- diÃƒÂ¡logo  */
 
 .dialogo {
   border: 1px solid var(--linea);
@@ -548,7 +548,7 @@ legend {
   to { opacity: 0; transform: translateY(6px); }
 }
 
-/* ------------------------------------------- tarjeta del token (menÃº ctx.) */
+/* ------------------------------------------- tarjeta del token (menÃƒÂº ctx.) */
 
 body.tarjeta {
   background: var(--bg);
@@ -583,10 +583,68 @@ body.tarjeta {
   overflow: hidden;
 }
 
-.ficha-cab { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
-.ficha-id { min-width: 0; }
+.ficha-cab { display: flex; align-items: center; gap: 10px; }
+.ficha-id { flex: 1; min-width: 0; }
 .ficha-id h2 { font-size: 19px; line-height: 1.15; letter-spacing: -0.2px; }
 .ficha-id p { font-size: 11.5px; color: var(--texto-tenue); margin-top: 2px; }
+.ficha-id .ficha-token { margin-top: 5px; }
+
+.retrato {
+  width: 54px;
+  height: 54px;
+  flex: none;
+  border-radius: 11px;
+  border: 1px solid var(--linea);
+  background: linear-gradient(135deg, var(--bg-elev-2), var(--bg-sunken));
+  position: relative;
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+}
+.retrato-letra { font-size: 21px; font-weight: 800; color: var(--texto-tenue); }
+.retrato img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.retrato-grande { width: 64px; height: 64px; border-radius: 13px; }
+
+.habilidades { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; }
+.habilidad {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 7px;
+  border: 1px solid var(--linea-suave);
+  border-radius: 7px;
+  background: var(--bg-sunken);
+  font-size: 11.5px;
+}
+.hab-punto { width: 6px; height: 6px; border-radius: 50%; border: 1px solid var(--linea); flex: none; }
+.habilidad.es-competente { border-color: rgba(185, 140, 255, 0.35); }
+.habilidad.es-competente .hab-punto { background: var(--acento); border-color: var(--acento); }
+.hab-nombre { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hab-car { font-size: 9px; font-weight: 700; letter-spacing: 0.5px; color: var(--texto-tenue); }
+.hab-bono { font-variant-numeric: tabular-nums; }
+
+.chip-hab b { color: var(--acento); font-variant-numeric: tabular-nums; }
+
+.habilidades-editor { display: grid; grid-template-columns: 1fr 1fr; gap: 3px; }
+.hab-check {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11.5px;
+  padding: 3px 4px;
+  border-radius: 5px;
+}
+.hab-check input { width: 14px; height: 14px; accent-color: var(--acento); flex: none; }
+.hab-check span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hab-check em { font-style: normal; font-size: 9px; color: var(--texto-tenue); }
+
+.dialogo-cabecera > div:not(.retrato) { flex: 1; min-width: 0; }
 
 .ficha-vida { display: flex; align-items: center; gap: 10px; }
 .ficha-vida .pv { flex: 1; min-width: 0; }
@@ -728,4 +786,5 @@ body.tarjeta {
     transition-duration: 0.001ms !important;
   }
 }
+
 

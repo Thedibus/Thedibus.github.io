@@ -167,7 +167,8 @@ function refrescarItems(items) {
         id: item.id,
         nombre: item.name || "Token",
         capa: item.layer,
-        imagen: item.type === "IMAGE",
+        esImagen: item.type === "IMAGE",
+        imagenUrl: item.type === "IMAGE" ? item.image?.url ?? null : null,
         datos,
       });
     }
@@ -228,7 +229,8 @@ export function estadisticasDe(pj) {
     oculto: datos ? datos.oculto : false,
     tokenId,
     tokenNombre: token?.nombre ?? null,
-    puedeBurbujas: token ? token.imagen && (token.capa === "CHARACTER" || token.capa === "MOUNT") : false,
+    tokenImagen: token?.imagenUrl ?? null,
+    puedeBurbujas: token ? token.esImagen && (token.capa === "CHARACTER" || token.capa === "MOUNT") : false,
     desdeToken: Boolean(datos),
   };
 }
@@ -350,7 +352,14 @@ export async function contextoToken() {
     return {
       estado: "ok",
       item,
-      token: token ?? { id: item.id, nombre: item.name || "Token", capa: item.layer, imagen: item.type === "IMAGE", datos: leerBurbujas(item) },
+      token: token ?? {
+        id: item.id,
+        nombre: item.name || "Token",
+        capa: item.layer,
+        esImagen: item.type === "IMAGE",
+        imagenUrl: item.type === "IMAGE" ? item.image?.url ?? null : null,
+        datos: leerBurbujas(item),
+      },
       personajeId: item.metadata?.[KEYS.token]?.personajeId ?? null,
     };
   } catch {

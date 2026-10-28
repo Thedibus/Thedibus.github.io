@@ -1,7 +1,7 @@
 /** Diálogo de creación y edición de fichas. */
 
 import { escribirBurbujas } from "../bubbles.js";
-import { CARACTERISTICAS, bonoCompetencia, modificador, normalizar, personajeNuevo } from "../model.js";
+import { CARACTERISTICAS, HABILIDADES, abrev, bonoCompetencia, modificador, normalizar, personajeNuevo } from "../model.js";
 import { estadisticasDe, guardarPersonaje } from "../store.js";
 import { $, conSigno, esc, toast } from "../util.js";
 
@@ -86,6 +86,20 @@ function plantilla(pj, esNuevo, est) {
             (c) => `<label><input type="checkbox" name="sal-${c.clave}" ${pj.salvaciones[c.clave] ? "checked" : ""} />${c.abrev}</label>`
           ).join("")}
         </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Habilidades competentes</legend>
+        <div class="habilidades-editor">
+          ${HABILIDADES.map(
+            (h) => `<label class="hab-check">
+              <input type="checkbox" name="hab-${h.clave}" ${pj.habilidades[h.clave] ? "checked" : ""} />
+              <span>${h.nombre}</span>
+              <em>${abrev(h.caracteristica)}</em>
+            </label>`
+          ).join("")}
+        </div>
+        <span class="ayuda">Marca las que domine: el bono suma su característica + competencia.</span>
       </fieldset>
 
       <label class="campo">
@@ -194,6 +208,12 @@ function recoger(formulario, base) {
     caracteristicas[clave] = Number(datos.get(`car-${clave}`));
     salvaciones[clave] = datos.get(`sal-${clave}`) !== null;
   }
+
+  const habilidades = {};
+  for (const { clave } of HABILIDADES) {
+    habilidades[clave] = datos.get(`hab-${clave}`) !== null;
+  }
+
   const opcional = (valor) => (valor === null || String(valor).trim() === "" ? null : Number(valor));
 
   const rasgos = String(datos.get("rasgos") ?? "")
@@ -215,5 +235,6 @@ function recoger(formulario, base) {
     notas: String(datos.get("notas") ?? ""),
     caracteristicas,
     salvaciones,
+    habilidades,
   };
 }

@@ -1,13 +1,32 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="Mesa de Héroes">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-label="Pergamino y sello">
   <defs>
-    <linearGradient id="mdh-g" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#8b5cf6"/>
-      <stop offset="1" stop-color="#4c1d95"/>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#3b1d6e"/>
+      <stop offset="1" stop-color="#17121f"/>
+    </linearGradient>
+    <linearGradient id="oro" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f6dca4"/>
+      <stop offset="1" stop-color="#c08a34"/>
     </linearGradient>
   </defs>
-  <rect width="64" height="64" rx="14" fill="url(#mdh-g)"/>
-  <polygon points="32,8 51,19 51,41 32,56 13,41 13,19" fill="none" stroke="#f5d08a" stroke-width="3" stroke-linejoin="round"/>
-  <polygon points="32,20 43,26.5 43,38 32,46 21,38 21,26.5" fill="none" stroke="#f5d08a" stroke-width="2" opacity=".8"/>
-  <path d="M32 8 L32 20 M51 19 L43 26.5 M51 41 L43 38 M32 56 L32 46 M13 41 L21 38 M13 19 L21 26.5"
-        stroke="#f5d08a" stroke-width="2" opacity=".55" stroke-linecap="round"/>
+
+  <rect width="512" height="512" rx="112" fill="url(#bg)"/>
+
+  <g transform="rotate(-3 256 256)">
+    <rect x="140" y="88" width="248" height="336" rx="18" fill="#0f0a16" opacity="0.45"/>
+    <rect x="132" y="80" width="248" height="336" rx="18" fill="#f4e8d2"/>
+    <path d="M380 80 V152 L308 80 Z" fill="#d8c09a"/>
+
+    <g fill="#b9a27f">
+      <rect x="178" y="176" width="188" height="18" rx="9"/>
+      <rect x="178" y="226" width="152" height="18" rx="9"/>
+      <rect x="178" y="276" width="188" height="18" rx="9"/>
+    </g>
+
+    <circle cx="350" cy="364" r="64" fill="url(#oro)" stroke="#8a5a1c" stroke-width="6"/>
+    <g fill="none" stroke="#6b4310" stroke-width="7" stroke-linejoin="round" opacity="0.9">
+      <path d="M350 328 L382 346 L382 382 L350 400 L318 382 L318 346 Z"/>
+      <path d="M350 344 L366 353 L350 362 L334 353 Z"/>
+    </g>
+  </g>
 </svg>

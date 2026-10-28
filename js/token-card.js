@@ -4,7 +4,7 @@ import OBR from "../vendor/owlbear-sdk.js";
 import { resumenClase } from "./model.js";
 import { buscarPersonaje, contextoToken, estadisticasDe, iniciarTienda, store } from "./store.js";
 import { esc } from "./util.js";
-import { bloqueRasgos, bloqueStats, bloqueVida } from "./ui/comun.js";
+import { bloqueRasgos, bloqueRetrato, bloqueStats, bloqueVida, chipsHabilidades } from "./ui/comun.js";
 
 let raiz = null;
 
@@ -51,7 +51,7 @@ async function pintar() {
 
   raiz.innerHTML = `
     <div class="token-ficha">
-      ${contexto.item.image?.url ? `<img class="token-mini" src="${esc(contexto.item.image.url)}" alt="" onerror="this.style.display='none'" />` : `<div class="token-mini"></div>`}
+      ${bloqueRetrato(pj, est)}
       <div class="token-datos">
         <h3>${esc(pj.nombre)}</h3>
         <p>${esc(resumenClase(pj)) || "sin clase"}</p>
@@ -62,6 +62,15 @@ async function pintar() {
     ${bloqueVida(pj, est, { oculto })}
 
     ${bloqueStats(pj)}
+
+    ${
+      chipsHabilidades(pj, 3)
+        ? `<div class="ficha-rasgos">
+            <span class="etiqueta">Habilidades</span>
+            ${chipsHabilidades(pj, 3)}
+          </div>`
+        : ""
+    }
 
     <div class="ficha-rasgos">
       <span class="etiqueta">Rasgos</span>

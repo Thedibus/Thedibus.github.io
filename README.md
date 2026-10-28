@@ -7,8 +7,14 @@ actualizan.
 
 - **Ficha compacta**: nombre, clase, PG, CA, las seis características con su
   abreviatura (FUE, DES, CON, INT, SAB, CAR), modificador y valor, y los rasgos.
+- **Retrato del token**: si el PJ está vinculado a un token que está en la
+  escena, su imagen aparece en la ficha (compacta y completa). Sin token, se
+  muestra la inicial del personaje.
+- **Habilidades**: las 18 habilidades de D&D 5e con su bono total
+  (característica + competencia). En la ficha compacta se ven solo las
+  competentes; en la ficha entera, todas.
 - **Ficha entera**: un panel con todos los datos del PJ (PG/CA editables,
-  derivados, salvaciones, rasgos y notas).
+  habilidades, derivados, salvaciones, rasgos y notas).
 - **Vida compartida con Stat Bubbles**: los PG/CA viven en los metadatos del
   token, en las mismas claves que usa Bubbles, así que los dos paneles ven lo
   mismo y se puede ajustar la vida desde el mapa sin abrir esta extensión.
@@ -73,7 +79,9 @@ Aparece el botón **Mesa de Héroes** arriba a la izquierda.
    modificador se calcula solo.
 3. En **Rasgos y habilidades** escribe uno por línea; se mostrarán como
    etiquetas.
-4. **Guardar**.
+4. Marca en **Habilidades competentes** las que domine (Atletismo, Sigilo,
+   Persuasión…). El bono se calcula solo: característica + competencia.
+5. **Guardar**.
 
 ### Vincular el personaje a un token
 
@@ -118,6 +126,11 @@ Consecuencias:
 ## 5. Personalización
 
 - **Nombre e icono**: `manifest.json` e `icon.svg`.
+- **Logo**: el icono elegido es la propuesta **5 (pergamino y sello)**. Está en
+  `icon.svg` y en `logo/icon-pergamino.svg`; los tamaños listos para usar están
+  en `logo/png/` (16 a 512 px) y `favicon.ico`. La composición con el nombre es
+  `logo/lockup-pergamino.svg|png`, y las cinco propuestas originales siguen en
+  `logo/propuestas-logos.png`.
 - **Colores e interfaz**: `css/estilos.css` (variables al principio, tema claro
   y oscuro automático).
 - **Datos de ejemplo**: `js/app.js` (`EJEMPLO`).
@@ -160,6 +173,10 @@ icons/ficha.svg        → icono del menú contextual
 
 ## 8. Historial
 
+- **2.1.1** — Logo definitivo (pergamino y sello): icono de la extensión,
+  favicon, tamaños 16–512 px, lockup con el nombre e icono monocromo del menú.
+- **2.1.0** — Retrato del token en la ficha y las 18 habilidades con su bono
+  (característica + competencia).
 - **2.0.0** — La extensión deja de tirar dados. La ficha pasa a ser de consulta,
   con PG/CA sincronizados con Stat Bubbles, rasgos y ficha completa. Se eliminan
   los botones de ataque, daño y los ajustes de vida predeterminados.

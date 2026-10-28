@@ -14,7 +14,7 @@ import {
   vincularToken,
 } from "../store.js";
 import { conSigno, esc, toast } from "../util.js";
-import { bloqueRasgos, bloqueStats, bloqueVida, mensajeEstado } from "./comun.js";
+import { bloqueRasgos, bloqueRetrato, bloqueStats, bloqueVida, chipsHabilidades, mensajeEstado, rejillaHabilidades } from "./comun.js";
 import { abrirEditor } from "./editor.js";
 
 let raiz = null;
@@ -54,25 +54,38 @@ export function pintarFicha() {
   const pj = personajeActivo() ?? store.personajes[0];
   const est = estadisticasDe(pj);
   const oculto = Boolean(est.oculto && store.rol === "PLAYER");
+  const chipsHab = chipsHabilidades(pj, 4);
 
   raiz.innerHTML = `
     ${selector(pj)}
     <article class="ficha-card" data-id="${esc(pj.id)}">
       <header class="ficha-cab">
+        ${bloqueRetrato(pj, est)}
         <div class="ficha-id">
           <h2>${esc(pj.nombre)}</h2>
           <p>${esc(resumenClase(pj)) || "sin clase"}</p>
+          <div class="ficha-token">
+            ${
+              est.tokenId
+                ? `<span class="chip chip-ok" title="Vinculado a un token">🔗 ${esc(est.tokenNombre ?? "Token")}</span>`
+                : `<span class="chip chip-tenue">Sin token</span>`
+            }
+          </div>
         </div>
-        ${
-          est.tokenId
-            ? `<span class="chip chip-ok" title="Vinculado a un token">🔗 ${esc(est.tokenNombre ?? "Token")}</span>`
-            : `<span class="chip chip-tenue">Sin token</span>`
-        }
       </header>
 
       ${bloqueVida(pj, est, { oculto })}
 
       ${bloqueStats(pj)}
+
+      ${
+        chipsHab
+          ? `<div class="ficha-rasgos">
+              <span class="etiqueta">Habilidades</span>
+              ${chipsHab}
+            </div>`
+          : ""
+      }
 
       <div class="ficha-rasgos">
         <span class="etiqueta">Rasgos</span>
@@ -156,6 +169,7 @@ function plantillaCompleta(pj) {
 
   return `
   <header class="dialogo-cabecera">
+    ${bloqueRetrato(pj, est, { grande: true })}
     <div>
       <h2>${esc(pj.nombre)}</h2>
       <p class="ayuda">${esc(resumenClase(pj)) || "sin clase"}</p>
@@ -196,6 +210,11 @@ function plantillaCompleta(pj) {
     <fieldset>
       <legend>Características</legend>
       ${bloqueStats(pj)}
+    </fieldset>
+
+    <fieldset>
+      <legend>Habilidades</legend>
+      ${rejillaHabilidades(pj)}
     </fieldset>
 
     <fieldset>

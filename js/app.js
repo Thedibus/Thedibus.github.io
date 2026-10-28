@@ -25,6 +25,7 @@ const EJEMPLO = [
     velocidad: 30,
     caracteristicas: { str: 8, dex: 17, con: 12, int: 13, wis: 10, cha: 14 },
     salvaciones: { str: false, dex: true, con: false, int: true, wis: false, cha: false },
+    habilidades: { sigilo: true, "juego-de-manos": true, percepcion: true },
     rasgos: ["Ataque furtivo 2d6", "Esquiva", "Visión en la oscuridad", "Herramientas de ladrón"],
     notas: "Contacto en la guild de ladrones del puerto.",
   },
@@ -38,6 +39,7 @@ const EJEMPLO = [
     velocidad: 25,
     caracteristicas: { str: 14, dex: 8, con: 16, int: 10, wis: 15, cha: 12 },
     salvaciones: { str: false, dex: false, con: true, int: false, wis: true, cha: false },
+    habilidades: { religion: true, medicina: true, perspicacia: true },
     rasgos: ["Canalizar divinidad", "Resistencia enana", "Palabra curativa 1d8+3"],
     notas: "Sirve a Moradin. Lleva un martillo de guerra consagrado.",
   },
@@ -51,6 +53,7 @@ const EJEMPLO = [
     velocidad: 30,
     caracteristicas: { str: 8, dex: 14, con: 12, int: 18, wis: 12, cha: 10 },
     salvaciones: { str: false, dex: false, con: false, int: true, wis: true, cha: false },
+    habilidades: { arcano: true, historia: true, investigacion: true },
     rasgos: ["Rayo de fuego 2d6", "Escudo arcano", "Trance élfico", "Bola de fuego"],
     notas: "Busca el grimorio perdido de su maestro.",
   },
@@ -310,3 +313,4 @@ if (OBR.isAvailable) {
 } else {
   document.addEventListener("DOMContentLoaded", arrancar);
 }
+

@@ -1,12 +1,12 @@
-{
-  "name": "Mesa de Héroes",
-  "version": "2.0.0",
+﻿{
+  "name": "Mesa de HÃ©roes",
+  "version": "2.1.1",
   "manifest_version": 1,
-  "author": "Mesa de Héroes",
+  "author": "Mesa de HÃ©roes",
   "description": "Ficha de consulta para cada PJ con PG y CA sincronizados con las burbujas del token y rasgos a mano.",
   "icon": "/icon.svg",
   "action": {
-    "title": "Mesa de Héroes",
+    "title": "Mesa de HÃ©roes",
     "icon": "/icon.svg",
     "popover": "/index.html",
     "width": 400,
@@ -14,3 +14,4 @@
   },
   "background_url": "/background.html"
 }
+

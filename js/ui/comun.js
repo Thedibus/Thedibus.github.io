@@ -1,7 +1,53 @@
 /** Piezas de interfaz compartidas por la ficha y la tarjeta del token. */
 
-import { CARACTERISTICAS, derivar, estadoVida } from "../model.js";
+import { CARACTERISTICAS, HABILIDADES, abrev, derivar, estadoVida } from "../model.js";
 import { conSigno, esc } from "../util.js";
+
+/** Retrato del token vinculado; si no hay token, la inicial del PJ. */
+export function bloqueRetrato(pj, est, { grande = false } = {}) {
+  const inicial = (pj?.nombre ?? "?").trim().charAt(0).toUpperCase() || "?";
+  const url = est?.tokenImagen;
+  return `<div class="retrato${grande ? " retrato-grande" : ""}">
+    <span class="retrato-letra">${esc(inicial)}</span>
+    ${url ? `<img src="${esc(url)}" alt="Retrato de ${esc(pj?.nombre ?? "")}" loading="lazy" onerror="this.remove()" />` : ""}
+  </div>`;
+}
+
+/** Rejilla de las 18 habilidades con su bono total. */
+export function rejillaHabilidades(pj) {
+  const d = derivar(pj);
+  return `<div class="habilidades">
+    ${HABILIDADES.map((habilidad) => {
+      const competente = pj.habilidades[habilidad.clave];
+      return `<div class="habilidad${competente ? " es-competente" : ""}" title="${habilidad.nombre} (${abrev(habilidad.caracteristica)})">
+        <span class="hab-punto"></span>
+        <span class="hab-nombre">${habilidad.nombre}</span>
+        <span class="hab-car">${abrev(habilidad.caracteristica)}</span>
+        <b class="hab-bono">${conSigno(d.habilidades[habilidad.clave])}</b>
+      </div>`;
+    }).join("")}
+  </div>`;
+}
+
+/** Etiquetas solo con las habilidades competentes (para la ficha compacta). */
+export function chipsHabilidades(pj, maximo = 0) {
+  const d = derivar(pj);
+  const competentes = HABILIDADES.filter((habilidad) => pj.habilidades[habilidad.clave]);
+  if (competentes.length === 0) return "";
+
+  const visibles = maximo > 0 ? competentes.slice(0, maximo) : competentes;
+  const resto = competentes.length - visibles.length;
+
+  return `<div class="rasgos">
+    ${visibles
+      .map(
+        (habilidad) =>
+          `<span class="chip chip-hab">${habilidad.nombre} <b>${conSigno(d.habilidades[habilidad.clave])}</b></span>`
+      )
+      .join("")}
+    ${resto > 0 ? `<span class="chip chip-tenue">+${resto} más</span>` : ""}
+  </div>`;
+}
 
 export function mensajeEstado(contexto) {
   switch (contexto?.estado) {

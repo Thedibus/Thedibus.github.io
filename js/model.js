@@ -17,6 +17,28 @@ export const CARACTERISTICAS = [
 
 export const abrev = (clave) => CARACTERISTICAS.find((c) => c.clave === clave)?.abrev ?? "???";
 
+/** Las 18 habilidades de D&D 5e, cada una ligada a una característica. */
+export const HABILIDADES = [
+  { clave: "atletismo", nombre: "Atletismo", caracteristica: "str" },
+  { clave: "acrobacias", nombre: "Acrobacias", caracteristica: "dex" },
+  { clave: "juego-de-manos", nombre: "Juego de manos", caracteristica: "dex" },
+  { clave: "sigilo", nombre: "Sigilo", caracteristica: "dex" },
+  { clave: "arcano", nombre: "Arcano", caracteristica: "int" },
+  { clave: "historia", nombre: "Historia", caracteristica: "int" },
+  { clave: "investigacion", nombre: "Investigación", caracteristica: "int" },
+  { clave: "naturaleza", nombre: "Naturaleza", caracteristica: "int" },
+  { clave: "religion", nombre: "Religión", caracteristica: "int" },
+  { clave: "trato-animales", nombre: "Trato con animales", caracteristica: "wis" },
+  { clave: "perspicacia", nombre: "Perspicacia", caracteristica: "wis" },
+  { clave: "medicina", nombre: "Medicina", caracteristica: "wis" },
+  { clave: "percepcion", nombre: "Percepción", caracteristica: "wis" },
+  { clave: "supervivencia", nombre: "Supervivencia", caracteristica: "wis" },
+  { clave: "engano", nombre: "Engaño", caracteristica: "cha" },
+  { clave: "intimidacion", nombre: "Intimidación", caracteristica: "cha" },
+  { clave: "interpretacion", nombre: "Interpretación", caracteristica: "cha" },
+  { clave: "persuasion", nombre: "Persuasión", caracteristica: "cha" },
+];
+
 export function modificador(puntuacion) {
   return Math.floor((clamp(puntuacion, 1, 40) - 10) / 2);
 }
@@ -39,6 +61,7 @@ export function personajeNuevo(extra = {}) {
     caracteristicas: { str: 10, dex: 10, con: 10, int: 10, wis: 10, cha: 10 },
     bonoCompetencia: null,
     salvaciones: { str: false, dex: false, con: false, int: false, wis: false, cha: false },
+    habilidades: {},
     rasgos: [],
     notas: "",
     actualizado: Date.now(),
@@ -64,6 +87,11 @@ export function normalizar(bruto = {}) {
     salvaciones[clave] = Boolean(bruto.salvaciones?.[clave]);
   }
 
+  const habilidades = {};
+  for (const { clave } of HABILIDADES) {
+    habilidades[clave] = Boolean(bruto.habilidades?.[clave]);
+  }
+
   const rasgos = Array.isArray(bruto.rasgos)
     ? bruto.rasgos
         .map((rasgo) => String(rasgo ?? "").trim().slice(0, 160))
@@ -83,6 +111,7 @@ export function normalizar(bruto = {}) {
     caracteristicas,
     bonoCompetencia: numeroOpcional(bruto.bonoCompetencia, 0, 20),
     salvaciones,
+    habilidades,
     rasgos,
     notas: String(bruto.notas ?? "").slice(0, 2000),
     actualizado: Number(bruto.actualizado) || Date.now(),
@@ -100,10 +129,17 @@ export function derivar(pj) {
     salvaciones[clave] = mods[clave] + (pj.salvaciones[clave] ? competencia : 0);
   }
 
+  const habilidades = {};
+  for (const habilidad of HABILIDADES) {
+    habilidades[habilidad.clave] =
+      mods[habilidad.caracteristica] + (pj.habilidades[habilidad.clave] ? competencia : 0);
+  }
+
   return {
     competencia,
     mods,
     salvaciones,
+    habilidades,
     iniciativa: mods.dex,
     hpPct: pj.hpMax > 0 ? pj.hp / pj.hpMax : 0,
   };
