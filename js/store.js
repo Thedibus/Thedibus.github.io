@@ -69,6 +69,7 @@ function leerActivoLocal() {
 }
 
 let programado = null;
+let firmaEscena = "";
 
 function programarItems(items) {
   if (programado) clearTimeout(programado);
@@ -114,20 +115,29 @@ export async function iniciarTienda() {
       store.vinculos.clear();
       store.porToken.clear();
       store.tokens.clear();
+      firmaEscena = "";
       store.avisar();
       return;
     }
-    const items = await OBR.scene.items.getItems();
-    await migrarTokens(items);
-    refrescarItems(await OBR.scene.items.getItems());
+    try {
+      const items = await OBR.scene.items.getItems();
+      await migrarTokens(items);
+      refrescarItems(await OBR.scene.items.getItems());
+    } catch (error) {
+      console.warn("[Mesa de Héroes] no se pudo cargar la escena", error);
+    }
   });
 
   OBR.scene.items.onChange(programarItems);
 
   if (store.escenaLista) {
-    const items = await OBR.scene.items.getItems();
-    await migrarTokens(items);
-    refrescarItems(await OBR.scene.items.getItems());
+    try {
+      const items = await OBR.scene.items.getItems();
+      await migrarTokens(items);
+      refrescarItems(await OBR.scene.items.getItems());
+    } catch (error) {
+      console.warn("[Mesa de Héroes] no se pudo leer la escena inicial", error);
+    }
   }
 
   asegurarActivo();
@@ -154,6 +164,14 @@ async function migrarTokens(items) {
   if (tareas.length > 0) await Promise.all(tareas);
 }
 
+/** Huella corta para comparar URLs largas (data URLs) sin cargar el string entero. */
+function huella(valor) {
+  const texto = String(valor ?? "");
+  let hash = 0;
+  for (let i = 0; i < texto.length; i++) hash = (hash * 31 + texto.charCodeAt(i)) | 0;
+  return hash;
+}
+
 function refrescarItems(items) {
   const vinculos = new Map();
   const porToken = new Map();
@@ -162,13 +180,15 @@ function refrescarItems(items) {
   for (const item of items) {
     const datos = leerBurbujas(item);
     const personajeId = item.metadata?.[KEYS.token]?.personajeId;
+    const imagenUrl = item.type === "IMAGE" ? item.image?.url ?? null : null;
     if (datos || personajeId) {
       tokens.set(item.id, {
         id: item.id,
         nombre: item.name || "Token",
         capa: item.layer,
         esImagen: item.type === "IMAGE",
-        imagenUrl: item.type === "IMAGE" ? item.image?.url ?? null : null,
+        imagenUrl,
+        imagenHuella: huella(imagenUrl),
         datos,
       });
     }
@@ -178,10 +198,20 @@ function refrescarItems(items) {
     }
   }
 
+  const firma = JSON.stringify({
+    tokens: [...tokens].map(([id, token]) => [id, token.nombre, token.capa, token.esImagen, token.imagenHuella, token.datos]),
+    vinculos: [...vinculos].sort((a, b) => a[0].localeCompare(b[0])),
+  });
+  const activoAntes = store.activoId;
+
   store.vinculos = vinculos;
   store.porToken = porToken;
   store.tokens = tokens;
   asegurarActivo();
+
+  // Arrastrar un token no cambia sus datos: evitamos repintar la interfaz.
+  if (firma === firmaEscena && activoAntes === store.activoId) return;
+  firmaEscena = firma;
   store.avisar();
 }
 
@@ -279,9 +309,42 @@ export async function guardarPersonaje(bruto) {
 }
 
 export async function borrarPersonaje(id) {
-  const tokenId = store.vinculos.get(id);
   await escribirPersonajes(store.personajes.filter((pj) => pj.id !== id));
-  if (tokenId) await desvincularToken(tokenId);
+  await desvincularTokensDe(id);
+}
+
+/** Quita el vínculo de todos los tokens apuntados a un PJ (o a todos). */
+async function desvincularTokensDe(personajeId, exceptoTokenId = null) {
+  if (!store.escenaLista) return;
+  try {
+    const items = await OBR.scene.items.getItems(
+      (item) =>
+        item.metadata?.[KEYS.token]?.personajeId === personajeId &&
+        item.id !== exceptoTokenId
+    );
+    if (items.length === 0) return;
+    await OBR.scene.items.updateItems(items, (borradores) => {
+      for (const borrador of borradores) delete borrador.metadata[KEYS.token];
+    });
+    await refrescarEscena();
+  } catch (error) {
+    console.warn("[Mesa de Héroes] no se pudieron desvincular los tokens", error);
+  }
+}
+
+/** Limpia los vínculos antes de vaciar la biblioteca. */
+export async function desvincularTodosLosTokens() {
+  if (!store.escenaLista) return;
+  try {
+    const items = await OBR.scene.items.getItems((item) => Boolean(item.metadata?.[KEYS.token]));
+    if (items.length === 0) return;
+    await OBR.scene.items.updateItems(items, (borradores) => {
+      for (const borrador of borradores) delete borrador.metadata[KEYS.token];
+    });
+    await refrescarEscena();
+  } catch (error) {
+    console.warn("[Mesa de Héroes] no se pudieron limpiar los vínculos", error);
+  }
 }
 
 export async function reemplazarBiblioteca(lista) {
@@ -302,6 +365,9 @@ export async function reemplazarBiblioteca(lista) {
 export async function vincularToken(tokenId, personajeId) {
   const pj = buscarPersonaje(personajeId);
   if (!pj) throw new Error("Ese PJ ya no existe");
+
+  // Un PJ se juega con un token: si estaba en otro, lo desvinculamos.
+  await desvincularTokensDe(personajeId, tokenId);
 
   await OBR.scene.items.updateItems(
     (item) => item.id === tokenId,

@@ -23,47 +23,53 @@ function plantilla(pj, esNuevo, est) {
           : ""
       }
 
-      <div class="grid-2">
-        <label class="campo">
-          <span class="etiqueta">Nombre</span>
-          <input name="nombre" required maxlength="60" autocomplete="off" value="${esc(pj.nombre)}" />
-        </label>
-        <label class="campo">
-          <span class="etiqueta">Clase</span>
-          <input name="clase" maxlength="40" autocomplete="off" value="${esc(pj.clase)}" />
-        </label>
-      </div>
+      <fieldset>
+        <legend>Identidad</legend>
+        <div class="grid-2">
+          <label class="campo">
+            <span class="etiqueta">Nombre</span>
+            <input name="nombre" required maxlength="60" autocomplete="off" value="${esc(pj.nombre)}" />
+          </label>
+          <label class="campo">
+            <span class="etiqueta">Clase</span>
+            <input name="clase" maxlength="40" autocomplete="off" value="${esc(pj.clase)}" />
+          </label>
+        </div>
+      </fieldset>
 
-      <div class="grid-3">
-        <label class="campo">
-          <span class="etiqueta">Nivel</span>
-          <input name="nivel" type="number" min="1" max="20" value="${pj.nivel}" />
-        </label>
-        <label class="campo">
-          <span class="etiqueta">Velocidad</span>
-          <input name="velocidad" type="number" min="0" max="300" value="${pj.velocidad}" />
-        </label>
-        <label class="campo">
-          <span class="etiqueta">Bono comp.</span>
-          <input name="bonoCompetencia" type="number" min="0" max="20" placeholder="auto ${conSigno(competenciaAuto)}"
-                 value="${pj.bonoCompetencia === null ? "" : pj.bonoCompetencia}" />
-        </label>
-      </div>
+      <fieldset>
+        <legend>Nivel y combate</legend>
+        <div class="grid-3">
+          <label class="campo">
+            <span class="etiqueta">Nivel</span>
+            <input name="nivel" type="number" min="1" max="20" value="${pj.nivel}" />
+          </label>
+          <label class="campo">
+            <span class="etiqueta">Velocidad</span>
+            <input name="velocidad" type="number" min="0" max="300" value="${pj.velocidad}" />
+          </label>
+          <label class="campo">
+            <span class="etiqueta">Bono comp.</span>
+            <input name="bonoCompetencia" type="number" min="0" max="20" placeholder="auto ${conSigno(competenciaAuto)}"
+                   value="${pj.bonoCompetencia === null ? "" : pj.bonoCompetencia}" />
+          </label>
+        </div>
 
-      <div class="grid-3">
-        <label class="campo">
-          <span class="etiqueta">PG actuales</span>
-          <input name="hp" type="number" min="0" max="9999" value="${pj.hp}" />
-        </label>
-        <label class="campo">
-          <span class="etiqueta">PG máximos</span>
-          <input name="hpMax" type="number" min="1" max="9999" value="${pj.hpMax}" />
-        </label>
-        <label class="campo">
-          <span class="etiqueta">CA</span>
-          <input name="ac" type="number" min="1" max="99" value="${pj.ac}" />
-        </label>
-      </div>
+        <div class="grid-3">
+          <label class="campo">
+            <span class="etiqueta">PG actuales</span>
+            <input name="hp" type="number" min="0" max="9999" value="${pj.hp}" />
+          </label>
+          <label class="campo">
+            <span class="etiqueta">PG máximos</span>
+            <input name="hpMax" type="number" min="1" max="9999" value="${pj.hpMax}" />
+          </label>
+          <label class="campo">
+            <span class="etiqueta">CA</span>
+            <input name="ac" type="number" min="1" max="99" value="${pj.ac}" />
+          </label>
+        </div>
+      </fieldset>
 
       <fieldset>
         <legend>Características</legend>
@@ -230,7 +236,12 @@ export function abrirEditor(pj = null) {
     try {
       const guardado = await guardarPersonaje(datos);
       const vinculado = estadisticasDe(guardado);
-      if (vinculado?.tokenId) {
+      const cambianPG =
+        vinculado &&
+        (guardado.hp !== vinculado.hp ||
+          guardado.hpMax !== vinculado.hpMax ||
+          guardado.ac !== vinculado.ac);
+      if (vinculado?.tokenId && cambianPG) {
         await escribirBurbujas(vinculado.tokenId, {
           hp: guardado.hp,
           hpMax: guardado.hpMax,

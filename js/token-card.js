@@ -7,6 +7,7 @@ import { esc } from "./util.js";
 import { bloqueRasgos, bloqueRetrato, bloqueStats, bloqueVida, chipsHabilidades } from "./ui/comun.js";
 
 let raiz = null;
+let version = 0;
 
 async function arrancar() {
   if (!OBR.isAvailable) return;
@@ -32,8 +33,9 @@ async function arrancar() {
 
 async function pintar() {
   if (!raiz) return;
+  const miVersion = ++version;
   const contexto = await contextoToken();
-  if (!raiz) return;
+  if (miVersion !== version || !raiz) return;
 
   if (contexto.estado !== "ok") {
     raiz.innerHTML = sinToken();

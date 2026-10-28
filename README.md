@@ -186,6 +186,11 @@ icons/ficha.svg        → icono del menú contextual
 
 ## 8. Historial
 
+- **2.2.4** — Limpieza: helpers y reglas CSS sin uso, menos repintados al mover
+  tokens, control de carreras en la tarjeta y un solo token por PJ.
+- **2.2.3** — Formularios restaurados (campos alineados), editor agrupado en
+  Identidad / Nivel y combate, y Ajustes sin la sección técnica de Bubbles y sin
+  desbordamiento por el identificador de sala.
 - **2.2.2** — Autoría visible: `Thedibus` como autor en el manifiesto, en el
   tooltip del botón y en Ajustes → Información.
 - **2.2.1** — Icono de acción transparente para la barra de Owlbear y

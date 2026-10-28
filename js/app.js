@@ -3,7 +3,7 @@
 import OBR from "../vendor/owlbear-sdk.js";
 import { ROL_ETIQUETA } from "./config.js";
 import { normalizar, personajeNuevo } from "./model.js";
-import { iniciarTienda, reemplazarBiblioteca, setActivo, store } from "./store.js";
+import { desvincularTodosLosTokens, iniciarTienda, reemplazarBiblioteca, setActivo, store } from "./store.js";
 import { $, $$, confirmar, descargarJson, esc, leerArchivo, toast } from "./util.js";
 import { abrirEditor } from "./ui/editor.js";
 import { montarDialogoFicha, montarFicha, pintarFicha, pintarFichaCompleta } from "./ui/ficha.js";
@@ -189,27 +189,10 @@ function pintarAjustes() {
   const contenedor = $("#panel-ajustes");
   if (!contenedor) return;
 
-  const conDatos = [...store.tokens.values()].filter((token) => token.datos).length;
   const vinculados = store.vinculos.size;
 
   contenedor.innerHTML = `
     <div class="ajustes">
-      <fieldset>
-        <legend>Stat Bubbles</legend>
-        <p class="ayuda">
-          ${
-            conDatos > 0
-              ? `Detectados <strong>${conDatos}</strong> token${conDatos === 1 ? "" : "s"} con burbujas. La vida y la CA son el mismo dato en los dos sitios.`
-              : `Todavía no hay datos de burbujas en esta escena. Instala <strong>Stat Bubbles for D&amp;D</strong> y vincula un token para ver los PG y la CA sobre el mapa.`
-          }
-        </p>
-        <p class="ayuda">
-          Mesa de Héroes escribe en <code>health</code>, <code>max health</code> y
-          <code>armor class</code> de Bubbles, así que puedes subir y bajar la vida
-          desde el token o desde esta ficha y los dos verán lo mismo.
-        </p>
-      </fieldset>
-
       <fieldset>
         <legend>Biblioteca de PJs</legend>
         <div class="btn-fila">
@@ -225,7 +208,7 @@ function pintarAjustes() {
         <p class="ayuda">
           <strong>Mesa de Héroes</strong> · por <strong>Thedibus</strong><br />
           Rol: ${esc(ROL_ETIQUETA[store.rol] ?? store.rol)}<br />
-          Sala: ${esc(OBR.room.id)}<br />
+          Sala: <span title="${esc(OBR.room.id)}">${esc(OBR.room.id.slice(0, 8))}…</span><br />
           PJs: ${store.personajes.length} · Tokens vinculados: ${vinculados}
         </p>
       </fieldset>
@@ -319,6 +302,7 @@ async function borrarTodo() {
   });
   if (!seguro) return;
   try {
+    await desvincularTodosLosTokens();
     await reemplazarBiblioteca([]);
     toast("Biblioteca vaciada", "ok");
   } catch (error) {
@@ -365,7 +349,9 @@ function conectarControles() {
 
 if (OBR.isAvailable) {
   OBR.onReady(arrancar);
-} else {
+} else if (document.readyState === "loading") {
   document.addEventListener("DOMContentLoaded", arrancar);
+} else {
+  arrancar();
 }
 

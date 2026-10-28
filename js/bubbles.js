@@ -17,12 +17,6 @@ import { BURBUJAS } from "./config.js";
 const numero = (valor, respaldo = 0) =>
   typeof valor === "number" && Number.isFinite(valor) ? valor : respaldo;
 
-/** ¿Este token puede mostrar burbujas? Bubbles solo dibuja imágenes en
- *  las capas Personaje y Montura. */
-export function puedeMostrarBurbujas(item) {
-  return Boolean(item) && item.type === "IMAGE" && (item.layer === "CHARACTER" || item.layer === "MOUNT");
-}
-
 /** Lee las estadísticas de Bubbles de un item. Devuelve null si no tiene. */
 export function leerBurbujas(item) {
   const datos = item?.metadata?.[BURBUJAS.clave];

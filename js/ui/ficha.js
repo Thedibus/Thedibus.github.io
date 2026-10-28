@@ -107,7 +107,7 @@ export function pintarFicha() {
 
       ${
         est.tokenId && !est.puedeBurbujas
-          ? `<p class="ayuda aviso-inline">Stat Bubbles solo dibuja sobre imágenes de las capas Personaje o Montura.</p>`
+          ? `<p class="ayuda aviso-inline">Las burbujas solo se dibujan sobre imágenes de las capas Personaje o Montura.</p>`
           : ""
       }
       ${
@@ -326,6 +326,10 @@ async function alCambiarDialogo(evento) {
 
   const valor = Number(campo.value);
   if (!Number.isFinite(valor)) return;
+
+  const pj = buscarPersonaje(fichaAbiertaId);
+  const est = estadisticasDe(pj);
+  if (est && Number(est[campo.dataset.campo]) === valor) return;
 
   try {
     const resultado = await escribirEstadisticas(fichaAbiertaId, { [campo.dataset.campo]: valor });

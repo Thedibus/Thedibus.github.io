@@ -27,14 +27,6 @@ export function conSigno(valor) {
   return n >= 0 ? `+${n}` : `${n}`;
 }
 
-export function horaCorta(marca) {
-  try {
-    return new Intl.DateTimeFormat("es", { hour: "2-digit", minute: "2-digit" }).format(new Date(marca));
-  } catch {
-    return "--:--";
-  }
-}
-
 /** Muestra un aviso efímero en la esquina inferior. */
 export function toast(mensaje, tipo = "info", ms = 2800) {
   const contenedor = document.getElementById("toasts");
@@ -48,25 +40,6 @@ export function toast(mensaje, tipo = "info", ms = 2800) {
     nodo.classList.add("saliendo");
     setTimeout(() => nodo.remove(), 220);
   }, ms);
-}
-
-/** Espera a que una condición sea verdadera (con límite de intentos). */
-export function esperar(condicion, { intentos = 40, pausa = 100 } = {}) {
-  return new Promise((resolver, rechazar) => {
-    let restantes = intentos;
-    const probar = () => {
-      let resultado = false;
-      try {
-        resultado = condicion();
-      } catch {
-        resultado = false;
-      }
-      if (resultado) return resolver(resultado);
-      if (--restantes <= 0) return rechazar(new Error("Tiempo de espera agotado"));
-      setTimeout(probar, pausa);
-    };
-    probar();
-  });
 }
 
 /** Descarga un objeto como archivo JSON. */
