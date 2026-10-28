@@ -223,6 +223,7 @@ function pintarAjustes() {
       <fieldset>
         <legend>Información</legend>
         <p class="ayuda">
+          <strong>Mesa de Héroes</strong> · por <strong>Thedibus</strong><br />
           Rol: ${esc(ROL_ETIQUETA[store.rol] ?? store.rol)}<br />
           Sala: ${esc(OBR.room.id)}<br />
           PJs: ${store.personajes.length} · Tokens vinculados: ${vinculados}

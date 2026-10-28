@@ -186,6 +186,8 @@ icons/ficha.svg        → icono del menú contextual
 
 ## 8. Historial
 
+- **2.2.2** — Autoría visible: `Thedibus` como autor en el manifiesto, en el
+  tooltip del botón y en Ajustes → Información.
 - **2.2.1** — Icono de acción transparente para la barra de Owlbear y
   `manifest.json` corregido (sin BOM ni doble codificación).
 - **2.2.0** — Panel redimensionable (400×680 ↔ 760×860) y ficha en una o dos
@@ -199,3 +201,7 @@ icons/ficha.svg        → icono del menú contextual
   con PG/CA sincronizados con Stat Bubbles, rasgos y ficha completa. Se eliminan
   los botones de ataque, daño y los ajustes de vida predeterminados.
 - **1.0.0** — Fichas, vínculo a tokens, dados por tipo de tirada y registro.
+
+---
+
+Hecho por **Thedibus** · <https://github.com/Thedibus>

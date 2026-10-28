@@ -1,16 +1,17 @@
 {
   "name": "Mesa de Héroes",
-  "version": "2.2.1",
+  "version": "2.2.2",
   "manifest_version": 1,
-  "author": "Mesa de Héroes",
+  "author": "Thedibus",
   "description": "Ficha de consulta para cada PJ con PG y CA sincronizados con las burbujas del token y rasgos, inventario y notas a mano.",
   "icon": "/icon.svg",
   "action": {
-    "title": "Mesa de Héroes",
+    "title": "Mesa de Héroes · Thedibus",
     "icon": "/icons/accion.png",
     "popover": "/index.html",
     "width": 400,
     "height": 680
   },
-  "background_url": "/background.html"
+  "background_url": "/background.html",
+  "homepage_url": "https://github.com/Thedibus"
 }
