@@ -8,21 +8,27 @@ export const EXT_ID = "com.mesadeheroes";
 export const KEYS = {
   /** Biblioteca de PJs, compartida en los metadatos de la sala. */
   characters: `${EXT_ID}/characters`,
-  /** Registro de tiradas, compartido en los metadatos de la sala. */
-  rolls: `${EXT_ID}/rolls`,
-  /** Preferencias de la mesa. */
-  settings: `${EXT_ID}/settings`,
-  /** Datos del PJ guardados dentro del token seleccionado. */
+  /** Identificador del PJ vinculado, dentro de los metadatos del token. */
   token: `${EXT_ID}/token`,
+  /** PJ activo de este jugador, en sus metadatos de jugador. */
+  activo: `${EXT_ID}/activo`,
 };
 
-export const SETTINGS_DEFAULT = {
-  /** Anunciar cada tirada a toda la mesa con una notificación. */
-  anunciar: true,
-  /** Rellenar el registro compartido. */
-  registro: true,
+/**
+ * Claves de la extensión «Stat Bubbles for D&D» (Seamus Finlayson).
+ * Son las que dibujan la vida y la CA sobre el token, así que Mesa de Héroes
+ * lee y escribe exactamente ahí para que ambos paneles muestren lo mismo.
+ */
+export const BURBUJAS = {
+  clave: "com.owlbear-rodeo-bubbles-extension/metadata",
+  hp: "health",
+  hpMax: "max health",
+  temp: "temporary health",
+  ac: "armor class",
+  oculto: "hide",
 };
-
-export const MAX_TIRADAS = 40;
 
 export const ROL_ETIQUETA = { GM: "Director", PLAYER: "Jugador" };
+
+/** Clave de localStorage para recordar el PJ activo entre recargas. */
+export const CLAVE_LOCAL_ACTIVO = "mesadeheroes:activo";

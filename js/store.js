@@ -1,15 +1,15 @@
 /**
  * Estado compartido de la extensión.
  *
- * - La biblioteca de PJs y el registro de tiradas viven en los metadatos de
- *   la SALA, así que se sincronizan entre el director y los jugadores.
- * - Cada token guarda una instantánea del PJ (PG, CA, nombre) en sus propios
- *   metadatos, para que el dato viaje "pegado" al token.
+ * - La biblioteca de PJs vive en los metadatos de la SALA.
+ * - El vínculo token ↔ PJ vive en los metadatos del TOKEN.
+ * - Los PG y la CA viven en los metadatos de «Stat Bubbles», dentro del token,
+ *   para que las burbujas del mapa y esta ficha sean siempre el mismo dato.
  */
 
 import OBR from "../vendor/owlbear-sdk.js";
-import { KEYS, MAX_TIRADAS, SETTINGS_DEFAULT } from "./config.js";
-import { entradaRegistro } from "./dice.js";
+import { escribirBurbujas, leerBurbujas } from "./bubbles.js";
+import { CLAVE_LOCAL_ACTIVO, KEYS } from "./config.js";
 import { normalizar } from "./model.js";
 import { clamp, uid } from "./util.js";
 
@@ -18,12 +18,16 @@ export const store = {
   escenaLista: false,
   rol: "PLAYER",
   personajes: [],
-  tiradas: [],
-  ajustes: { ...SETTINGS_DEFAULT },
+  activoId: null,
+  /** personajeId → tokenId */
+  vinculos: new Map(),
+  /** tokenId → personajeId */
+  porToken: new Map(),
+  /** tokenId → { id, nombre, datos de Bubbles, capa, imagen } */
+  tokens: new Map(),
   seleccion: [],
   oyentes: new Set(),
 
-  /** Suscribirse a cualquier cambio de estado. Devuelve la función para desuscribirse. */
   alCambiar(oyente) {
     this.oyentes.add(oyente);
     return () => this.oyentes.delete(oyente);
@@ -40,38 +44,217 @@ export const store = {
   },
 };
 
-function aplicarMetadatos(metadatos) {
+/* --------------------------------------------------------------- arranque */
+
+function aplicarPersonajes(metadatos) {
   const crudos = metadatos?.[KEYS.characters];
   store.personajes = Array.isArray(crudos) ? crudos.map(normalizar) : [];
+}
 
-  const tiradas = metadatos?.[KEYS.rolls];
-  store.tiradas = Array.isArray(tiradas) ? tiradas : [];
+function recordarActivo(id) {
+  try {
+    if (id) localStorage.setItem(CLAVE_LOCAL_ACTIVO, id);
+    else localStorage.removeItem(CLAVE_LOCAL_ACTIVO);
+  } catch {
+    /* almacenamiento no disponible */
+  }
+}
 
-  store.ajustes = { ...SETTINGS_DEFAULT, ...(metadatos?.[KEYS.settings] ?? {}) };
-  store.avisar();
+function leerActivoLocal() {
+  try {
+    return localStorage.getItem(CLAVE_LOCAL_ACTIVO);
+  } catch {
+    return null;
+  }
+}
+
+let programado = null;
+
+function programarItems(items) {
+  if (programado) clearTimeout(programado);
+  programado = setTimeout(() => {
+    programado = null;
+    refrescarItems(items);
+  }, 100);
 }
 
 export async function iniciarTienda() {
-  const [rol, metadatos] = await Promise.all([OBR.player.getRole(), OBR.room.getMetadata()]);
-  store.rol = rol;
-  aplicarMetadatos(metadatos);
+  const [rol, metaSala, metaJugador, seleccion] = await Promise.all([
+    OBR.player.getRole(),
+    OBR.room.getMetadata(),
+    OBR.player.getMetadata(),
+    OBR.player.getSelection(),
+  ]);
 
-  OBR.room.onMetadataChange(aplicarMetadatos);
+  store.rol = rol;
+  aplicarPersonajes(metaSala);
+  store.seleccion = seleccion ?? [];
+
+  const guardado = metaJugador?.[KEYS.activo]?.personajeId ?? leerActivoLocal();
+  if (guardado && store.personajes.some((pj) => pj.id === guardado)) store.activoId = guardado;
+
+  OBR.room.onMetadataChange((metadatos) => {
+    aplicarPersonajes(metadatos);
+    asegurarActivo();
+    store.avisar();
+  });
 
   OBR.player.onChange((jugador) => {
     store.seleccion = jugador.selection ?? [];
+    const activo = jugador.metadata?.[KEYS.activo]?.personajeId;
+    if (activo && store.personajes.some((pj) => pj.id === activo)) store.activoId = activo;
+    asegurarActivo();
     store.avisar();
   });
 
-  store.seleccion = (await OBR.player.getSelection()) ?? [];
   store.escenaLista = await OBR.scene.isReady();
-  OBR.scene.onReadyChange((listo) => {
+  OBR.scene.onReadyChange(async (listo) => {
     store.escenaLista = listo;
-    store.avisar();
+    if (!listo) {
+      store.vinculos.clear();
+      store.porToken.clear();
+      store.tokens.clear();
+      store.avisar();
+      return;
+    }
+    const items = await OBR.scene.items.getItems();
+    await migrarTokens(items);
+    refrescarItems(await OBR.scene.items.getItems());
   });
 
+  OBR.scene.items.onChange(programarItems);
+
+  if (store.escenaLista) {
+    const items = await OBR.scene.items.getItems();
+    await migrarTokens(items);
+    refrescarItems(await OBR.scene.items.getItems());
+  }
+
+  asegurarActivo();
   store.listo = true;
   store.avisar();
+}
+
+/**
+ * Versiones anteriores guardaban una copia de PG/CA dentro del vínculo.
+ * Si un token tiene esa copia y todavía no tiene datos de Bubbles, los
+ * sembramos para no perder la vida actual al actualizar la extensión.
+ */
+async function migrarTokens(items) {
+  const tareas = [];
+  for (const item of items) {
+    const vinculo = item.metadata?.[KEYS.token];
+    if (!vinculo?.personajeId || leerBurbujas(item)) continue;
+    const hp = Number(vinculo.hp);
+    const hpMax = Number(vinculo.hpMax);
+    const ac = Number(vinculo.ac);
+    if (!Number.isFinite(hp) || !Number.isFinite(hpMax) || hpMax <= 0) continue;
+    tareas.push(escribirBurbujas(item.id, { hp, hpMax, ac: Number.isFinite(ac) ? ac : 10 }));
+  }
+  if (tareas.length > 0) await Promise.all(tareas);
+}
+
+function refrescarItems(items) {
+  const vinculos = new Map();
+  const porToken = new Map();
+  const tokens = new Map();
+
+  for (const item of items) {
+    const datos = leerBurbujas(item);
+    const personajeId = item.metadata?.[KEYS.token]?.personajeId;
+    if (datos || personajeId) {
+      tokens.set(item.id, {
+        id: item.id,
+        nombre: item.name || "Token",
+        capa: item.layer,
+        imagen: item.type === "IMAGE",
+        datos,
+      });
+    }
+    if (typeof personajeId === "string" && personajeId) {
+      vinculos.set(personajeId, item.id);
+      porToken.set(item.id, personajeId);
+    }
+  }
+
+  store.vinculos = vinculos;
+  store.porToken = porToken;
+  store.tokens = tokens;
+  asegurarActivo();
+  store.avisar();
+}
+
+/* ------------------------------------------------------------ PJ activo */
+
+export function personajeActivo() {
+  return store.personajes.find((pj) => pj.id === store.activoId) ?? null;
+}
+
+function asegurarActivo() {
+  if (store.activoId && store.personajes.some((pj) => pj.id === store.activoId)) return;
+  const porSeleccion = store.seleccion.map((tokenId) => store.porToken.get(tokenId)).find(Boolean);
+  store.activoId = porSeleccion ?? store.personajes[0]?.id ?? null;
+}
+
+export async function setActivo(id) {
+  if (!store.personajes.some((pj) => pj.id === id)) return;
+  store.activoId = id;
+  recordarActivo(id);
+  store.avisar();
+  try {
+    await OBR.player.setMetadata({ [KEYS.activo]: { personajeId: id } });
+  } catch (error) {
+    console.warn("[Mesa de Héroes] no se pudo guardar el PJ activo", error);
+  }
+}
+
+/* ------------------------------------------------------ estadísticas vivas */
+
+/**
+ * Devuelve los PG/CA que hay que enseñar para un PJ.
+ * Si está vinculado a un token con Bubbles, mandan los valores del token.
+ */
+export function estadisticasDe(pj) {
+  if (!pj) return null;
+  const tokenId = store.vinculos.get(pj.id) ?? null;
+  const token = tokenId ? store.tokens.get(tokenId) : null;
+  const datos = token?.datos ?? null;
+
+  return {
+    hp: datos ? datos.hp : pj.hp,
+    hpMax: datos ? datos.hpMax : pj.hpMax,
+    temp: datos ? datos.temp : 0,
+    ac: datos ? datos.ac : pj.ac,
+    oculto: datos ? datos.oculto : false,
+    tokenId,
+    tokenNombre: token?.nombre ?? null,
+    puedeBurbujas: token ? token.imagen && (token.capa === "CHARACTER" || token.capa === "MOUNT") : false,
+    desdeToken: Boolean(datos),
+  };
+}
+
+/** Escribe PG/CA en Bubbles (si hay token) o en la ficha (si no lo hay). */
+export async function escribirEstadisticas(pjId, cambios = {}) {
+  const pj = buscarPersonaje(pjId);
+  if (!pj) return null;
+
+  const est = estadisticasDe(pj);
+  const hpMax = clamp(cambios.hpMax ?? est.hpMax, 1, 9999);
+  const hp = clamp(cambios.hp ?? est.hp, 0, hpMax);
+  const ac = clamp(cambios.ac ?? est.ac, 1, 99);
+
+  if (est.tokenId) {
+    await escribirBurbujas(est.tokenId, { hp, hpMax, ac });
+    // Reflejo inmediato mientras llega el evento de la escena.
+    const token = store.tokens.get(est.tokenId);
+    if (token?.datos) {
+      token.datos = { ...token.datos, hp, hpMax, ac };
+      store.avisar();
+    }
+  } else {
+    await guardarPersonaje({ ...pj, hp, hpMax, ac });
+  }
+  return { hp, hpMax, ac, tokenId: est.tokenId };
 }
 
 /* ------------------------------------------------------------- biblioteca */
@@ -80,25 +263,23 @@ export const buscarPersonaje = (id) => store.personajes.find((pj) => pj.id === i
 
 async function escribirPersonajes(lista) {
   store.personajes = lista;
+  asegurarActivo();
   store.avisar();
   await OBR.room.setMetadata({ [KEYS.characters]: lista });
 }
 
-/** Crea o actualiza un PJ y sincroniza los tokens vinculados. */
 export async function guardarPersonaje(bruto) {
   const pj = normalizar(bruto);
   const existe = store.personajes.some((p) => p.id === pj.id);
-  const lista = existe
-    ? store.personajes.map((p) => (p.id === pj.id ? pj : p))
-    : [...store.personajes, pj];
+  const lista = existe ? store.personajes.map((p) => (p.id === pj.id ? pj : p)) : [...store.personajes, pj];
   await escribirPersonajes(lista);
-  await sincronizarTokens(pj);
   return pj;
 }
 
 export async function borrarPersonaje(id) {
+  const tokenId = store.vinculos.get(id);
   await escribirPersonajes(store.personajes.filter((pj) => pj.id !== id));
-  await desvincularPorPersonaje(id);
+  if (tokenId) await desvincularToken(tokenId);
 }
 
 export async function reemplazarBiblioteca(lista) {
@@ -114,62 +295,27 @@ export async function reemplazarBiblioteca(lista) {
   return limpia;
 }
 
-export async function cambiarVida(id, delta) {
-  const pj = buscarPersonaje(id);
-  if (!pj) return null;
-  const hp = clamp(pj.hp + Number(delta || 0), 0, pj.hpMax);
-  return guardarPersonaje({ ...pj, hp });
-}
+/* ------------------------------------------------------------------ tokens */
 
-export async function fijarVida(id, valor) {
-  const pj = buscarPersonaje(id);
-  if (!pj) return null;
-  return guardarPersonaje({ ...pj, hp: clamp(valor, 0, pj.hpMax) });
-}
-
-/* ---------------------------------------------------------------- tokens */
-
-const instantanea = (pj) => ({
-  personajeId: pj.id,
-  nombre: pj.nombre,
-  hp: pj.hp,
-  hpMax: pj.hpMax,
-  ac: pj.ac,
-  actualizado: Date.now(),
-});
-
-export const leerVinculo = (item) => item?.metadata?.[KEYS.token] ?? null;
-
-/** Copia el estado del PJ a todos los tokens vinculados a él. */
-export async function sincronizarTokens(pj) {
-  if (!store.escenaLista) return;
-  try {
-    const items = await OBR.scene.items.getItems(
-      (item) => item.metadata?.[KEYS.token]?.personajeId === pj.id
-    );
-    if (items.length === 0) return;
-    await OBR.scene.items.updateItems(items, (borradores) => {
-      for (const borrador of borradores) {
-        const datos = borrador.metadata[KEYS.token];
-        if (!datos) continue;
-        borrador.metadata[KEYS.token] = { ...datos, ...instantanea(pj) };
-      }
-    });
-  } catch (error) {
-    console.warn("[Mesa de Héroes] no se pudieron sincronizar los tokens", error);
-  }
-}
-
-/** Guarda la instantánea del PJ dentro del token seleccionado. */
 export async function vincularToken(tokenId, personajeId) {
   const pj = buscarPersonaje(personajeId);
   if (!pj) throw new Error("Ese PJ ya no existe");
+
   await OBR.scene.items.updateItems(
     (item) => item.id === tokenId,
     (items) => {
-      for (const item of items) item.metadata[KEYS.token] = instantanea(pj);
+      for (const item of items) item.metadata[KEYS.token] = { personajeId };
     }
   );
+
+  const [item] = await OBR.scene.items.getItems([tokenId]);
+  const datos = item ? leerBurbujas(item) : null;
+  if (pj && (!datos || datos.hpMax <= 0)) {
+    await escribirBurbujas(tokenId, { hp: pj.hp, hpMax: pj.hpMax, ac: pj.ac });
+  }
+
+  if (!store.activoId) await setActivo(pj.id);
+  await refrescarEscena();
   return pj;
 }
 
@@ -180,88 +326,34 @@ export async function desvincularToken(tokenId) {
       for (const item of items) delete item.metadata[KEYS.token];
     }
   );
+  await refrescarEscena();
 }
 
-async function desvincularPorPersonaje(personajeId) {
-  if (!store.escenaLista) return;
+async function refrescarEscena() {
   try {
-    const items = await OBR.scene.items.getItems(
-      (item) => item.metadata?.[KEYS.token]?.personajeId === personajeId
-    );
-    if (items.length === 0) return;
-    await OBR.scene.items.updateItems(items, (borradores) => {
-      for (const borrador of borradores) delete borrador.metadata[KEYS.token];
-    });
+    refrescarItems(await OBR.scene.items.getItems());
   } catch (error) {
-    console.warn("[Mesa de Héroes] no se pudieron desvincular los tokens", error);
+    console.warn("[Mesa de Héroes] no se pudo refrescar la escena", error);
   }
 }
 
-/** Estado del token seleccionado ahora mismo por este jugador. */
+/** Token seleccionado ahora mismo por este jugador. */
 export async function contextoToken() {
   if (!store.escenaLista) return { estado: "sin-escena" };
   if (store.seleccion.length === 0) return { estado: "sin-seleccion" };
-  if (store.seleccion.length > 1) return { estado: "multiple", ids: store.seleccion };
-  let item = null;
+  if (store.seleccion.length > 1) return { estado: "multiple" };
+  const tokenId = store.seleccion[0];
+  const token = store.tokens.get(tokenId) ?? null;
   try {
-    [item] = await OBR.scene.items.getItems([store.seleccion[0]]);
+    const [item] = await OBR.scene.items.getItems([tokenId]);
+    if (!item) return { estado: "sin-seleccion" };
+    return {
+      estado: "ok",
+      item,
+      token: token ?? { id: item.id, nombre: item.name || "Token", capa: item.layer, imagen: item.type === "IMAGE", datos: leerBurbujas(item) },
+      personajeId: item.metadata?.[KEYS.token]?.personajeId ?? null,
+    };
   } catch {
     return { estado: "sin-seleccion" };
-  }
-  if (!item) return { estado: "sin-seleccion" };
-  return { estado: "ok", item, vinculo: leerVinculo(item) };
-}
-
-/* ----------------------------------------------------------------- registro */
-
-export async function registrarTirada(resultado) {
-  if (!store.ajustes.registro) return null;
-  let autor = "";
-  try {
-    autor = await OBR.player.getName();
-  } catch {
-    autor = "";
-  }
-  const entrada = {
-    id: uid("tirada"),
-    momento: Date.now(),
-    autor,
-    ...entradaRegistro(resultado),
-  };
-  const lista = [entrada, ...store.tiradas].slice(0, MAX_TIRADAS);
-  store.tiradas = lista;
-  store.avisar();
-  try {
-    await OBR.room.setMetadata({ [KEYS.rolls]: lista });
-  } catch (error) {
-    console.warn("[Mesa de Héroes] no se pudo guardar el registro", error);
-  }
-  return entrada;
-}
-
-export async function limpiarRegistro() {
-  store.tiradas = [];
-  store.avisar();
-  try {
-    await OBR.room.setMetadata({ [KEYS.rolls]: [] });
-  } catch (error) {
-    console.warn(error);
-  }
-}
-
-export function anunciar(resultado) {
-  if (!store.ajustes.anunciar) return;
-  OBR.notification.show(resultado.resumen, "DEFAULT").catch(() => {});
-}
-
-/* ----------------------------------------------------------------- ajustes */
-
-export async function guardarAjustes(parcial) {
-  store.ajustes = { ...store.ajustes, ...parcial };
-  store.avisar();
-  try {
-    await OBR.room.setMetadata({ [KEYS.settings]: store.ajustes });
-  } catch (error) {
-    console.warn("[Mesa de Héroes] no se pudieron guardar los ajustes", error);
   }
 }

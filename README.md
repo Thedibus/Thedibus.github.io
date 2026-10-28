@@ -1,190 +1,166 @@
-# Mesa de Héroes · extensión para Owlbear Rodeo
+# Mesa de Héroes · ficha de consulta para Owlbear Rodeo
 
-Fichas de personaje con **PG** y **CA** que se pueden **pegar a los tokens** y un
-lanzador de dados que **sabe qué tipo de tirada** estás haciendo para sumar los
-modificadores correctos.
+Una ficha pequeña y siempre a mano para cada personaje, con la **vida y la CA
+compartidas con «Stat Bubbles for D&D»**: si bajas los PG desde las burbujas del
+token, la ficha lo refleja; si los cambias en la ficha, las burbujas se
+actualizan.
 
-- **Biblioteca de PJs compartida**: todos los datos viven en la sala, así que el
-  director y los jugadores ven las mismas fichas.
-- **Token con datos dentro**: al vincular un PJ a un token, los PG, la CA y el
-  nombre se guardan en los metadatos del token y se mantienen sincronizados.
-- **Tiradas con tipo**: ataque, daño, salvación, prueba de característica,
-  iniciativa, curación y fórmula libre. Cada tipo aplica su bono, con ventaja /
-  desventaja, críticos y pifias.
-- **Menú contextual del token**: clic derecho sobre un token → ficha rápida con
-  PG, CA, botones de −5/−1/+1/+5 y tiradas de ataque y daño.
-- **Registro compartido**: las últimas 40 tiradas quedan visibles para toda la
-  mesa, con notificación opcional.
-- **Importar / exportar** la biblioteca en JSON.
+- **Ficha compacta**: nombre, clase, PG, CA, las seis características con su
+  abreviatura (FUE, DES, CON, INT, SAB, CAR), modificador y valor, y los rasgos.
+- **Ficha entera**: un panel con todos los datos del PJ (PG/CA editables,
+  derivados, salvaciones, rasgos y notas).
+- **Vida compartida con Stat Bubbles**: los PG/CA viven en los metadatos del
+  token, en las mismas claves que usa Bubbles, así que los dos paneles ven lo
+  mismo y se puede ajustar la vida desde el mapa sin abrir esta extensión.
+- **Rasgos y notas**: se añaden desde el editor, uno por línea.
+- **Biblioteca compartida**: los PJs se guardan en la sala y los ve todo el
+  mundo. Importar/exportar en JSON.
+- **Menú contextual del token**: clic derecho sobre el token → ficha compacta
+  con PG, CA, características y rasgos, sin salir del mapa.
 
-No necesita Node, ni compilación, ni servidor propio: son archivos estáticos.
+No hace tiradas de dados: las estadísticas están pensadas para consultarlas y
+tirar tus propios dados en la mesa.
 
 ---
 
-## 1. Publicar los archivos (una sola vez)
+## 1. Requisito: instala «Stat Bubbles for D&D»
 
-Owlbear Rodeo carga las extensiones desde una URL **HTTPS**. Elige una de estas
-opciones y sube **todo el contenido de esta carpeta** (incluida la carpeta `js`,
-`css`, `icons` y `vendor`):
+Mesa de Héroes escribe la vida y la CA en los metadatos que usa **Stat Bubbles
+for D&D** (de Seamus Finlayson). Para ver las burbujas sobre el token hace falta
+tener esa extensión añadida a la sala:
 
-| Opción | Cómo | Ruta resultante |
-| --- | --- | --- |
-| **Netlify Drop** | Entra en <https://app.netlify.com/drop> y arrastra la carpeta. | `https://algo.netlify.app` |
-| **Cloudflare Pages** | *Create project → Direct upload*. | `https://algo.pages.dev` |
-| **GitHub Pages (sitio de usuario)** | Repo llamado `tuusuario.github.io` en la rama `main`. | `https://tuusuario.github.io` |
-| **GitHub Pages (proyecto)** | Repo normal, activa Pages. Sirve en `https://tuusuario.github.io/repo/`. | ⚠ requiere que la URL del manifiesto sea la de la carpeta |
+- Repositorio: <https://github.com/SeamusFinlayson/Bubbles-for-Owlbear-Rodeo>
+- Tienda de extensiones de Owlbear: busca **Stat Bubbles**.
 
-> El manifiesto usa rutas absolutas (`/index.html`, `/icons/ficha.svg`) igual
-> que las extensiones oficiales, así que lo más sencillo es publicar la carpeta
-> en la **raíz** de un dominio o subdominio (Netlify, Cloudflare o un repo
-> `usuario.github.io`). Si publicas en una subcarpeta de GitHub Pages, cambia en
-> `manifest.json` las rutas por las que incluyan `/nombre-del-repo` y haz lo
-> mismo en `js/background.js` (iconos) y en `index.html` (`/icon.svg`).
+Sin Bubbles, esta ficha sigue funcionando y guardando los datos en el token, pero
+no habrá burbujas dibujadas en el mapa.
 
-### GitHub Pages paso a paso
+## 2. Instalarla
 
-1. Crea el repositorio con el nombre exacto `TUUSUARIO.github.io` (público, sin README).
-2. **Add file → Upload files**: arrastra el **contenido** de esta carpeta, no el
-   ZIP ni la carpeta entera. Deben quedar `index.html` y `manifest.json` en la
-   raíz, junto a las carpetas `css`, `icons`, `js` y `vendor`.
-3. **Commit changes**.
-4. **Settings → Pages → Source: Deploy from a branch → `main` / `(root)` → Save**.
-5. Espera 1–2 minutos y abre `https://TUUSUARIO.github.io/manifest.json`.
-   Debe verse el JSON.
-6. Esa es la URL que se pega en Owlbear Rodeo.
-
-El repositorio tiene que ser **público**: GitHub Pages gratuito no publica repos
-privados. El archivo `.nojekyll` ya está incluido para que GitHub no procese el
-sitio con Jekyll.
-
-Si ya tienes un sitio en `TUUSUARIO.github.io` y no quieres reemplazarlo, crea un
-repo normal (`mesa-de-heroes`) y avísame: hay que prefijar las rutas con
-`/mesa-de-heroes/` en `manifest.json`, `index.html` y `js/background.js`.
-
-La URL del manifiesto será, por ejemplo:
+La extensión ya está publicada en:
 
 ```
-https://tu-sitio.netlify.app/manifest.json
-https://TUUSUARIO.github.io/manifest.json
+https://thedibus.github.io/manifest.json
 ```
 
-## 2. Instalarla en Owlbear Rodeo
+En Owlbear Rodeo: **sala → Extensiones → Añadir extensión** → pega esa URL.
+Aparece el botón **Mesa de Héroes** arriba a la izquierda.
 
-1. Abre (o crea) una **sala**.
-2. Menú de la sala → **Extensiones** → **Añadir extensión**.
-3. Pega la URL del `manifest.json` y confirma.
-4. Aparecerá un botón **Mesa de Héroes** arriba a la izquierda, junto a las
-   herramientas. Ese botón abre el panel.
+### Actualizarla (GitHub Pages)
 
-La extensión queda guardada en esa sala. Los jugadores la ven al entrar.
+1. En el repo `Thedibus/Thedibus.github.io`, **Add file → Upload files**.
+2. Sube los archivos modificados (o todo el contenido de la carpeta).
+3. **Commit changes**. Pages redespliega solo en 1–2 minutos.
 
-## 3. Uso rápido
+### Publicarla desde cero
 
-### Crear la ficha
+1. Crea el repositorio `TUUSUARIO.github.io` (público).
+2. Sube el **contenido** de esta carpeta: `index.html`, `manifest.json` y las
+   carpetas `css`, `icons`, `js`, `vendor`, más `.nojekyll` y `_headers`.
+3. **Settings → Pages → Deploy from a branch → main / (root) → Save**.
+4. Comprueba `https://TUUSUARIO.github.io/manifest.json`.
+
+> El manifiesto usa rutas absolutas (`/index.html`, `/icons/ficha.svg`), igual
+> que las extensiones oficiales, así que la carpeta tiene que quedar en la raíz
+> del sitio (`usuario.github.io`, Netlify, Cloudflare Pages).
+
+## 3. Uso
+
+### Crear un personaje
 
 1. Pestaña **PJs** → **+ Nuevo PJ**.
-2. Rellena nombre, clase, nivel, **PG máximos**, **PG actuales**, **CA** y las
-   seis características. El modificador se calcula solo.
-3. En **Combate** puedes dejar el bono de ataque en blanco para que use
-   automáticamente el mejor de FUE/DES + competencia, o escribir el total.
+2. Rellena nombre, clase, nivel, PG, CA y las seis características. El
+   modificador se calcula solo.
+3. En **Rasgos y habilidades** escribe uno por línea; se mostrarán como
+   etiquetas.
 4. **Guardar**.
 
-### Pegar la ficha a un token
+### Vincular el personaje a un token
 
-1. En el mapa, selecciona **un** token.
-2. Pestaña **Token** (o el botón **🔗 Vincular** de la ficha).
-3. Elige el PJ y pulsa **Vincular**.
+1. Selecciona **un** token en el mapa (capa Personaje o Montura, para que Bubbles
+   lo dibuje).
+2. Pestaña **Ficha** → **Vincular token seleccionado** (o desde la tarjeta del PJ
+   en **PJs**).
+3. Al vincular, si el token no tenía datos de Bubbles, se copian los PG/CA de la
+   ficha. Si ya los tenía, se respetan los del token.
 
-Desde ese momento:
+### Ver y editar la vida
 
-- el token guarda `nombre`, `hp`, `hpMax`, `ac` y `personajeId` en sus metadatos;
-- si cambias los PG en la ficha, el token se actualiza;
-- clic derecho sobre el token → **Ficha del PJ** abre una tarjeta con PG, CA y
-  botones de daño/curación.
+- **Desde el mapa**: clic derecho sobre el token → **Ficha del PJ** abre la
+  tarjeta con PG, CA, características y rasgos. Para cambiar la vida usa las
+  burbujas de Bubbles (su propio menú contextual).
+- **Desde esta extensión**: **Ver ficha entera** → cambia **PG actuales**,
+  **PG máximos** o **CA**. Se escribe en las burbujas al instante.
 
-### Tirar dados
+### Ocultar estadísticas a los jugadores
 
-Pestaña **Dados**:
-
-1. Elige personaje (se preselecciona el del token seleccionado).
-2. Elige el **tipo de tirada**:
-   - **Ataque** → `1d20 + bono de ataque`
-   - **Daño** → los dados de daño del PJ (botón *Crítico* para duplicar dados)
-   - **Salvación** → `1d20 + mod. + competencia` si la salvación está marcada
-   - **Prueba** → `1d20 + mod.` (puedes sumar competencia)
-   - **Iniciativa** → `1d20 + DES`
-   - **Curación** → fórmula de curación
-   - **Libre** → cualquier fórmula, por ejemplo `2d6+3`
-3. Ventaja / desventaja para las tiradas de d20.
-4. **Tirar**. El resultado muestra el total, los dados y el desglose.
-5. En daño y curación aparece un botón para **aplicarlo directamente** a los PG
-   del personaje (y del token vinculado).
-
-También puedes tirar sin abrir el panel: clic derecho en el token →
-**Tirar ataque** o **Tirar daño**.
+Si en Bubbles marcas un token como oculto (`hide`), Mesa de Héroes también
+muestra `—` en ese token cuando el jugador no es el director.
 
 ## 4. Dónde se guardan los datos
 
 | Dato | Ubicación | Clave |
 | --- | --- | --- |
 | Biblioteca de PJs | Metadatos de la **sala** | `com.mesadeheroes/characters` |
-| Registro de tiradas | Metadatos de la **sala** | `com.mesadeheroes/rolls` |
-| Preferencias | Metadatos de la **sala** | `com.mesadeheroes/settings` |
-| Ficha del token | Metadatos del **item** | `com.mesadeheroes/token` |
+| PJ vinculado al token | Metadatos del **token** | `com.mesadeheroes/token` |
+| PJ activo de cada jugador | Metadatos del **jugador** | `com.mesadeheroes/activo` |
+| PG, PG máximos, PG temporales y CA | Metadatos del **token** (Bubbles) | `com.owlbear-rodeo-bubbles-extension/metadata` |
 
 Consecuencias:
 
+- Los PG/CA son los mismos en Bubbles y en Mesa de Héroes; no hay dos copias
+  que se puedan desincronizar.
 - Si borras la sala, se borran las fichas. **Exporta** de vez en cuando desde
   *Ajustes → Exportar*.
-- Cualquier jugador con permiso para editar la sala puede modificar la
-  biblioteca; si un jugador no puede guardar, normalmente es por los permisos
-  de la sala o porque el token es del director.
-- Para mover la biblioteca a otra sala: *Exportar* en una, *Importar* en la otra.
+- Al actualizar desde la versión 1, los tokens que tenían PG guardados por la
+  versión antigua se migran automáticamente a Bubbles la primera vez.
 
 ## 5. Personalización
 
-- **Nombre, icono y descripción**: `manifest.json` e `icon.svg`.
-- **Colores e interfaz**: `css/estilos.css` (variables al principio; hay tema
-  claro y oscuro automático).
-- **Tipos de tirada y fórmulas**: `js/dice.js` (`TIPOS` y `vistaPrevia`).
+- **Nombre e icono**: `manifest.json` e `icon.svg`.
+- **Colores e interfaz**: `css/estilos.css` (variables al principio, tema claro
+  y oscuro automático).
 - **Datos de ejemplo**: `js/app.js` (`EJEMPLO`).
+- **Claves de Bubbles**: `js/config.js` (`BURBUJAS`).
 
-El SDK de Owlbear Rodeo está incluido en `vendor/owlbear-sdk.js` (versión 3.1.0,
-empaquetado). No hace falta `npm install`; si quieres actualizarlo, descarga
-`https://esm.sh/@owlbear-rodeo/sdk@<versión>/es2022/sdk.bundle.mjs` y sustituye
-el archivo.
+El SDK de Owlbear Rodeo está incluido en `vendor/owlbear-sdk.js` (3.1.0). No
+hace falta Node ni compilar.
 
 ## 6. Problemas frecuentes
 
 | Síntoma | Causa probable | Solución |
 | --- | --- | --- |
-| «No se pudo conectar» | El panel se abrió fuera de Owlbear Rodeo, o la URL no es HTTPS. | Abre el botón de la extensión dentro de la sala. |
-| No aparece el botón | El manifiesto no carga. | Comprueba que `manifest.json` abre en el navegador y que la sala tiene la extensión añadida. |
-| No se guardan los PJs | Permisos de la sala. | El director debe crearlos, o revisa los permisos de los jugadores. |
-| El token no se actualiza | El token es de otra capa o no tienes permiso de edición. | Usa un token de la capa de personajes y comprueba los permisos. |
-| Los iconos del menú salen rotos | Se publicó en una subcarpeta con rutas absolutas. | Ver la nota de la sección 1. |
+| No aparecen las burbujas | Bubbles no está instalado en la sala | Añade **Stat Bubbles for D&D** a la sala |
+| No aparecen las burbujas en un token | Está en una capa que Bubbles no dibuja | Usa un token de las capas **Personaje** o **Montura** |
+| La ficha muestra `—` | El token está oculto para jugadores | Desactiva `hide` en Bubbles o entra como director |
+| No se guardan los cambios | Permisos de la sala o del token | Comprueba los permisos de jugador |
+| Los PG de la ficha no cambian al tocar el token | El evento de escena aún no llegó | Espera un instante; se refresca solo |
 
 ## 7. Estructura
 
 ```
 manifest.json          → punto de entrada
 background.html/.js    → menú contextual del token
-index.html             → panel principal (popover)
-token-card.html/.js    → tarjeta rápida del token
+index.html             → panel principal (ficha / PJs / ajustes)
+token-card.html/.js    → tarjeta compacta del token
 js/
-  config.js            → identificadores y ajustes por defecto
+  config.js            → identificadores y claves de Bubbles
   model.js             → personaje y valores derivados
-  dice.js              → fórmulas, d20 y tipos de tirada
-  store.js             → estado compartido (metadatos de sala y token)
-  app.js               → arranque, pestañas, ajustes, registro
-  ui/                  → editor, fichas, dados, token, acciones
+  bubbles.js           → lectura/escritura de las burbujas
+  store.js             → estado compartido y vínculos token ↔ PJ
+  app.js               → arranque, pestañas, ajustes, importación
+  ui/comun.js          → piezas de ficha reutilizadas
+  ui/ficha.js          → ficha compacta y ficha entera
+  ui/pjs.js            → biblioteca de PJs
+  ui/editor.js         → alta y edición de fichas
 vendor/owlbear-sdk.js  → SDK empaquetado
 css/estilos.css        → estilos (tema claro/oscuro)
-icons/                 → iconos del menú contextual
+icons/ficha.svg        → icono del menú contextual
 ```
 
-## 8. Créditos y licencia
+## 8. Historial
 
-Hecho para Owlbear Rodeo 2.x usando el SDK oficial
-(<https://github.com/owlbear-rodeo/sdk>). Puedes modificarlo y compartirlo
-libremente con tu mesa.
+- **2.0.0** — La extensión deja de tirar dados. La ficha pasa a ser de consulta,
+  con PG/CA sincronizados con Stat Bubbles, rasgos y ficha completa. Se eliminan
+  los botones de ataque, daño y los ajustes de vida predeterminados.
+- **1.0.0** — Fichas, vínculo a tokens, dados por tipo de tirada y registro.

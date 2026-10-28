@@ -1,22 +1,15 @@
-/** Arranque del popover: pestañas, ajustes, importación y registro. */
+/** Arranque del popover: pestañas, ajustes e importación. */
 
 import OBR from "../vendor/owlbear-sdk.js";
 import { ROL_ETIQUETA } from "./config.js";
 import { normalizar, personajeNuevo } from "./model.js";
-import {
-  guardarAjustes,
-  iniciarTienda,
-  limpiarRegistro,
-  reemplazarBiblioteca,
-  store,
-} from "./store.js";
-import { $, $$, confirmar, descargarJson, esc, horaCorta, leerArchivo, toast } from "./util.js";
-import { mostrarResultado, montarDados, pintarDados } from "./ui/dados.js";
+import { iniciarTienda, reemplazarBiblioteca, setActivo, store } from "./store.js";
+import { $, $$, confirmar, descargarJson, esc, leerArchivo, toast } from "./util.js";
 import { abrirEditor } from "./ui/editor.js";
+import { montarDialogoFicha, montarFicha, pintarFicha, pintarFichaCompleta } from "./ui/ficha.js";
 import { montarPjs, pintarPjs } from "./ui/pjs.js";
-import { montarToken, pintarToken } from "./ui/token.js";
 
-let panelActivo = "pjs";
+let panelActivo = "ficha";
 let renderPendiente = false;
 
 /* ------------------------------------------------------------------- ejemplo */
@@ -31,10 +24,9 @@ const EJEMPLO = [
     ac: 15,
     velocidad: 30,
     caracteristicas: { str: 8, dex: 17, con: 12, int: 13, wis: 10, cha: 14 },
-    bonoAtaque: 5,
-    dano: "1d8+3",
     salvaciones: { str: false, dex: true, con: false, int: true, wis: false, cha: false },
-    notas: "Ataque furtivo 2d6 si tiene ventaja.",
+    rasgos: ["Ataque furtivo 2d6", "Esquiva", "Visión en la oscuridad", "Herramientas de ladrón"],
+    notas: "Contacto en la guild de ladrones del puerto.",
   },
   {
     nombre: "Borin Martillode Hierro",
@@ -45,10 +37,9 @@ const EJEMPLO = [
     ac: 18,
     velocidad: 25,
     caracteristicas: { str: 14, dex: 8, con: 16, int: 10, wis: 15, cha: 12 },
-    bonoAtaque: 5,
-    dano: "1d8+2",
     salvaciones: { str: false, dex: false, con: true, int: false, wis: true, cha: false },
-    notas: "Curación con palabra curativa: 1d8+3.",
+    rasgos: ["Canalizar divinidad", "Resistencia enana", "Palabra curativa 1d8+3"],
+    notas: "Sirve a Moradin. Lleva un martillo de guerra consagrado.",
   },
   {
     nombre: "Sella Estrella",
@@ -59,10 +50,9 @@ const EJEMPLO = [
     ac: 12,
     velocidad: 30,
     caracteristicas: { str: 8, dex: 14, con: 12, int: 18, wis: 12, cha: 10 },
-    bonoAtaque: 7,
-    dano: "1d10",
     salvaciones: { str: false, dex: false, con: false, int: true, wis: true, cha: false },
-    notas: "Rayo de fuego: 2d6. Escudo arcano: +5 CA.",
+    rasgos: ["Rayo de fuego 2d6", "Escudo arcano", "Trance élfico", "Bola de fuego"],
+    notas: "Busca el grimorio perdido de su maestro.",
   },
 ];
 
@@ -87,9 +77,9 @@ async function arrancar() {
   $("#aviso-entorno").hidden = true;
   $("#app").hidden = false;
 
+  montarFicha($("#panel-ficha"));
+  montarDialogoFicha();
   montarPjs($("#lista-pjs"));
-  montarDados($("#panel-dados"));
-  montarToken($("#panel-token"));
 
   conectarControles();
   store.alCambiar(programarRender);
@@ -112,14 +102,13 @@ function programarRender() {
 function renderizar() {
   const subtitulo = $("#subtitulo");
   if (subtitulo) {
-    const cantidad = store.personajes.length;
-    const tiradas = store.tiradas.length;
-    subtitulo.textContent = `${cantidad} PJ${cantidad === 1 ? "" : "s"} · ${tiradas} tirada${tiradas === 1 ? "" : "s"}`;
+    const pjs = store.personajes.length;
+    const conVida = [...store.tokens.values()].filter((token) => token.datos).length;
+    subtitulo.textContent = `${pjs} PJ${pjs === 1 ? "" : "s"} · ${conVida} token${conVida === 1 ? "" : "s"} con vida`;
   }
+  pintarFicha();
   pintarPjs();
-  pintarDados();
-  pintarToken();
-  pintarRegistro();
+  pintarFichaCompleta();
   if (panelActivo === "ajustes") pintarAjustes();
 }
 
@@ -135,34 +124,9 @@ function activarPanel(nombre) {
     pestana.classList.toggle("es-activa", activa);
     pestana.setAttribute("aria-selected", activa ? "true" : "false");
   }
-  if (nombre === "token") pintarToken();
+  if (nombre === "ficha") pintarFicha();
+  if (nombre === "pjs") pintarPjs();
   if (nombre === "ajustes") pintarAjustes();
-  if (nombre === "registro") pintarRegistro();
-}
-
-/* ------------------------------------------------------------------ registro */
-
-function pintarRegistro() {
-  const lista = $("#lista-registro");
-  if (!lista) return;
-
-  if (store.tiradas.length === 0) {
-    lista.innerHTML = `<li class="vacio"><strong>Sin tiradas todavía</strong><p>Las tiradas de toda la mesa aparecerán aquí.</p></li>`;
-    return;
-  }
-
-  lista.innerHTML = store.tiradas
-    .map((t) => {
-      const tono = t.critico ? "critico" : t.pifia ? "pifia" : "normal";
-      const autor = t.autor ? ` · ${esc(t.autor)}` : "";
-      return `<li data-tono="${tono}">
-        <span class="hora">${horaCorta(t.momento)}</span>
-        <span class="quien">${esc(t.personaje)}</span>
-        <span class="que">${esc(t.etiqueta)} · ${esc(t.desglose)}${autor}</span>
-        <span class="total">${t.total}</span>
-      </li>`;
-    })
-    .join("");
 }
 
 /* ------------------------------------------------------------------- ajustes */
@@ -171,19 +135,25 @@ function pintarAjustes() {
   const contenedor = $("#panel-ajustes");
   if (!contenedor) return;
 
-  const { anunciar, registro } = store.ajustes;
+  const conDatos = [...store.tokens.values()].filter((token) => token.datos).length;
+  const vinculados = store.vinculos.size;
+
   contenedor.innerHTML = `
     <div class="ajustes">
       <fieldset>
-        <legend>Tiradas</legend>
-        <label class="interruptor">
-          <input type="checkbox" data-ajuste="anunciar" ${anunciar ? "checked" : ""} />
-          <div><strong>Anunciar a la mesa</strong><span>Avisa a todos los jugadores del resultado de cada tirada.</span></div>
-        </label>
-        <label class="interruptor">
-          <input type="checkbox" data-ajuste="registro" ${registro ? "checked" : ""} />
-          <div><strong>Registro compartido</strong><span>Guarda las últimas 40 tiradas en la sala.</span></div>
-        </label>
+        <legend>Stat Bubbles</legend>
+        <p class="ayuda">
+          ${
+            conDatos > 0
+              ? `Detectados <strong>${conDatos}</strong> token${conDatos === 1 ? "" : "s"} con burbujas. La vida y la CA son el mismo dato en los dos sitios.`
+              : `Todavía no hay datos de burbujas en esta escena. Instala <strong>Stat Bubbles for D&amp;D</strong> y vincula un token para ver los PG y la CA sobre el mapa.`
+          }
+        </p>
+        <p class="ayuda">
+          Mesa de Héroes escribe en <code>health</code>, <code>max health</code> y
+          <code>armor class</code> de Bubbles, así que puedes subir y bajar la vida
+          desde el token o desde esta ficha y los dos verán lo mismo.
+        </p>
       </fieldset>
 
       <fieldset>
@@ -201,7 +171,7 @@ function pintarAjustes() {
         <p class="ayuda">
           Rol: ${esc(ROL_ETIQUETA[store.rol] ?? store.rol)}<br />
           Sala: ${esc(OBR.room.id)}<br />
-          PJs: ${store.personajes.length} · Tiradas guardadas: ${store.tiradas.length}
+          PJs: ${store.personajes.length} · Tokens vinculados: ${vinculados}
         </p>
       </fieldset>
 
@@ -210,15 +180,9 @@ function pintarAjustes() {
         <div class="btn-fila">
           <button class="btn peligro" data-aj="borrar-todo">Borrar todos los PJs</button>
         </div>
-        <p class="ayuda">Los tokens vinculados quedarán sin ficha. Esta acción no se puede deshacer.</p>
+        <p class="ayuda">Los tokens vinculados quedarán sin ficha, pero sus burbujas se conservan.</p>
       </fieldset>
     </div>`;
-}
-
-function alCambiarAjustes(evento) {
-  const casilla = evento.target.closest("[data-ajuste]");
-  if (!casilla) return;
-  guardarAjustes({ [casilla.dataset.ajuste]: casilla.checked });
 }
 
 async function alClicAjustes(evento) {
@@ -248,7 +212,7 @@ function exportar() {
     return;
   }
   descargarJson("mesa-de-heroes-pjs.json", {
-    version: 1,
+    version: 2,
     exportado: new Date().toISOString(),
     personajes: store.personajes,
   });
@@ -318,13 +282,6 @@ function conectarControles() {
   $("#btn-nuevo")?.addEventListener("click", () => abrirEditor(null));
   $("#btn-exportar")?.addEventListener("click", exportar);
   $("#btn-importar")?.addEventListener("click", () => $("#input-archivo").click());
-  $("#btn-limpiar-registro")?.addEventListener("click", async () => {
-    const seguro = await confirmar("¿Vaciar el registro de tiradas de toda la mesa?", {
-      titulo: "Vaciar registro",
-      boton: "Sí, vaciar",
-    });
-    if (seguro) await limpiarRegistro();
-  });
 
   $("#input-archivo")?.addEventListener("change", (evento) => {
     const archivo = evento.target.files?.[0];
@@ -332,20 +289,17 @@ function conectarControles() {
     if (archivo) importar(archivo);
   });
 
-  $("#panel-ajustes")?.addEventListener("change", alCambiarAjustes);
   $("#panel-ajustes")?.addEventListener("click", alClicAjustes);
 
   document.addEventListener("mdh:ejemplo", cargarEjemplo);
 
-  document.addEventListener("mdh:tirada", (evento) => {
-    const { resultado, origen } = evento.detail ?? {};
-    if (!resultado) return;
-    if (origen === "dados") return;
-    mostrarResultado(resultado, resultado.personaje?.id ?? null);
-    activarPanel("dados");
+  document.addEventListener("mdh:abrir-ficha", async (evento) => {
+    const id = evento.detail?.id;
+    if (id) await setActivo(id);
+    activarPanel("ficha");
+    pintarFicha();
   });
 
-  // Escape cierra el diálogo sin recargar la ventana.
   $("#dialogo-pj")?.addEventListener("cancel", (evento) => evento.preventDefault());
 }
 

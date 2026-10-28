@@ -18,22 +18,24 @@
         <img src="/icon.svg" alt="" class="marca-icono" />
         <div class="marca-texto">
           <h1>Mesa de Héroes</h1>
-          <p id="subtitulo">Fichas, PG y tiradas</p>
+          <p id="subtitulo">Fichas y vida compartida</p>
         </div>
       </div>
       <span id="rol" class="insignia" title="Tu rol en la sala">…</span>
     </header>
 
     <nav class="pestanas" role="tablist" aria-label="Secciones">
-      <button class="pestana es-activa" role="tab" data-panel="pjs" aria-selected="true">PJs</button>
-      <button class="pestana" role="tab" data-panel="dados" aria-selected="false">Dados</button>
-      <button class="pestana" role="tab" data-panel="token" aria-selected="false">Token</button>
-      <button class="pestana" role="tab" data-panel="registro" aria-selected="false">Registro</button>
+      <button class="pestana es-activa" role="tab" data-panel="ficha" aria-selected="true">Ficha</button>
+      <button class="pestana" role="tab" data-panel="pjs" aria-selected="false">PJs</button>
       <button class="pestana pestana-icono" role="tab" data-panel="ajustes" aria-selected="false" title="Ajustes" aria-label="Ajustes">⚙</button>
     </nav>
 
     <main class="contenido">
-      <section class="panel es-activa" data-panel="pjs" role="tabpanel">
+      <section class="panel es-activa" data-panel="ficha" role="tabpanel">
+        <div id="panel-ficha"></div>
+      </section>
+
+      <section class="panel" data-panel="pjs" role="tabpanel">
         <div class="barra">
           <button id="btn-nuevo" class="btn primario">+ Nuevo PJ</button>
           <button id="btn-importar" class="btn" title="Importar PJs desde un archivo JSON">Importar</button>
@@ -43,22 +45,6 @@
         <div id="lista-pjs" class="lista-pjs"></div>
       </section>
 
-      <section class="panel" data-panel="dados" role="tabpanel">
-        <div id="panel-dados"></div>
-      </section>
-
-      <section class="panel" data-panel="token" role="tabpanel">
-        <div id="panel-token"></div>
-      </section>
-
-      <section class="panel" data-panel="registro" role="tabpanel">
-        <div class="barra">
-          <h2 class="titulo-seccion">Últimas tiradas</h2>
-          <button id="btn-limpiar-registro" class="btn sutil">Limpiar</button>
-        </div>
-        <ol id="lista-registro" class="registro"></ol>
-      </section>
-
       <section class="panel" data-panel="ajustes" role="tabpanel">
         <div id="panel-ajustes"></div>
       </section>
@@ -66,7 +52,9 @@
   </div>
 
   <div id="toasts" class="toasts" aria-live="polite" aria-atomic="false"></div>
+
   <dialog id="dialogo-pj" class="dialogo" aria-label="Ficha de personaje"></dialog>
+  <dialog id="dialogo-ficha" class="dialogo dialogo-ficha" aria-label="Ficha completa"></dialog>
 
   <dialog id="dialogo-confirmar" class="dialogo" aria-label="Confirmar acción">
     <form method="dialog">

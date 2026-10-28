@@ -38,9 +38,8 @@ export function personajeNuevo(extra = {}) {
     velocidad: 30,
     caracteristicas: { str: 10, dex: 10, con: 10, int: 10, wis: 10, cha: 10 },
     bonoCompetencia: null,
-    bonoAtaque: null,
-    dano: "1d6",
     salvaciones: { str: false, dex: false, con: false, int: false, wis: false, cha: false },
+    rasgos: [],
     notas: "",
     actualizado: Date.now(),
   };
@@ -64,6 +63,14 @@ export function normalizar(bruto = {}) {
   for (const { clave } of CARACTERISTICAS) {
     salvaciones[clave] = Boolean(bruto.salvaciones?.[clave]);
   }
+
+  const rasgos = Array.isArray(bruto.rasgos)
+    ? bruto.rasgos
+        .map((rasgo) => String(rasgo ?? "").trim().slice(0, 160))
+        .filter(Boolean)
+        .slice(0, 60)
+    : [];
+
   return {
     id: typeof bruto.id === "string" && bruto.id.length > 0 ? bruto.id : uid("pj"),
     nombre: String(bruto.nombre ?? "PJ sin nombre").trim().slice(0, 60) || "PJ sin nombre",
@@ -75,9 +82,8 @@ export function normalizar(bruto = {}) {
     velocidad: clamp(bruto.velocidad ?? 30, 0, 300),
     caracteristicas,
     bonoCompetencia: numeroOpcional(bruto.bonoCompetencia, 0, 20),
-    bonoAtaque: numeroOpcional(bruto.bonoAtaque, -20, 40),
-    dano: String(bruto.dano ?? "1d6").slice(0, 30) || "1d6",
     salvaciones,
+    rasgos,
     notas: String(bruto.notas ?? "").slice(0, 2000),
     actualizado: Number(bruto.actualizado) || Date.now(),
   };
@@ -88,20 +94,26 @@ export function derivar(pj) {
   const competencia = pj.bonoCompetencia ?? bonoCompetencia(pj.nivel);
   const mods = {};
   for (const { clave } of CARACTERISTICAS) mods[clave] = modificador(pj.caracteristicas[clave]);
-  const ataque = pj.bonoAtaque ?? Math.max(mods.str, mods.dex) + competencia;
+
+  const salvaciones = {};
+  for (const { clave } of CARACTERISTICAS) {
+    salvaciones[clave] = mods[clave] + (pj.salvaciones[clave] ? competencia : 0);
+  }
+
   return {
     competencia,
     mods,
-    ataque,
+    salvaciones,
     iniciativa: mods.dex,
     hpPct: pj.hpMax > 0 ? pj.hp / pj.hpMax : 0,
   };
 }
 
-/** "ok" | "aviso" | "critico" según el porcentaje de vida. */
-export function estadoVida(pj) {
-  if (pj.hp <= 0) return "critico";
-  const pct = pj.hpMax > 0 ? pj.hp / pj.hpMax : 0;
+/** "ok" | "aviso" | "critico" | "vacio" según el porcentaje de vida. */
+export function estadoVida(hp, hpMax) {
+  if (!hpMax || hpMax <= 0) return "vacio";
+  if (hp <= 0) return "critico";
+  const pct = hp / hpMax;
   if (pct <= 0.25) return "critico";
   if (pct <= 0.5) return "aviso";
   return "ok";
