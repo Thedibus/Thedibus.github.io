@@ -14,6 +14,7 @@ import { confirmar, esc, toast } from "../util.js";
 import { mensajeEstado, bloqueVida } from "./comun.js";
 import { abrirEditor } from "./editor.js";
 import { abrirFichaCompleta } from "./ficha.js";
+import { exportarPersonaje } from "../transferencia.js";
 
 let raiz = null;
 
@@ -41,7 +42,7 @@ export function pintarPjs() {
       const oculto = Boolean(est.oculto && store.rol === "PLAYER");
       const activo = pj.id === store.activoId;
 
-      return `<article class="pc ${activo ? "es-activo" : ""}" data-id="${esc(pj.id)}">
+      return `<article class="pc ${activo ? "es-activo" : ""}" data-id="${esc(pj.id)}" title="Abrir ficha completa">
         <header class="pc-cabecera">
           <h3 class="pc-nombre">${esc(pj.nombre)}</h3>
           <span class="pc-clase">${esc(resumenClase(pj)) || "sin clase"}</span>
@@ -52,12 +53,12 @@ export function pintarPjs() {
 
         <div class="pc-acciones">
           <button class="btn" data-accion="abrir" data-id="${esc(pj.id)}">Abrir</button>
-          <button class="btn" data-accion="completa" data-id="${esc(pj.id)}">Ver ficha</button>
           ${
             est.tokenId
               ? `<span class="chip chip-ok chip-mini" title="Token vinculado">🔗 ${esc(est.tokenNombre ?? "Token")}</span>`
               : `<button class="btn" data-accion="vincular" data-id="${esc(pj.id)}">Vincular</button>`
           }
+          <button class="btn icono" data-accion="exportar" data-id="${esc(pj.id)}" title="Exportar este PJ" aria-label="Exportar este PJ">⬇</button>
           <button class="btn icono" data-accion="editar" data-id="${esc(pj.id)}" title="Editar ficha" aria-label="Editar ficha">✎</button>
           <button class="btn icono" data-accion="borrar" data-id="${esc(pj.id)}" title="Borrar PJ" aria-label="Borrar PJ">🗑</button>
         </div>
@@ -93,6 +94,8 @@ async function alHacerClic(evento) {
       return;
     case "completa":
       return abrirFichaCompleta(pj.id);
+    case "exportar":
+      return exportarPersonaje(pj.id);
     case "editar":
       return abrirEditor(pj);
     case "borrar":

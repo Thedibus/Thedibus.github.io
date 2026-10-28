@@ -251,6 +251,7 @@ img, svg { display: block; }
   overflow: hidden;
   transition: border-color 0.15s, transform 0.15s;
 }
+.pc { cursor: pointer; }
 .pc:hover { border-color: var(--linea); }
 
 .pc-cabecera { display: flex; align-items: baseline; gap: 8px; justify-content: space-between; }

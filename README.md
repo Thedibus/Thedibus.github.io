@@ -37,6 +37,14 @@ su vida y su CA sincronizadas con las burbujas del token.
 
 La ficha mostrará la imagen del token y compartirá con él la vida y la CA.
 
+### Guardar o llevar tu personaje
+
+- **Exportar**: en **Ver ficha entera** → **Exportar**, o con el botón **⬇** de la
+  lista, descargas solo ese PJ.
+- **Importar PJ**: en la pestaña **PJs**, carga el archivo de un personaje. Si ya
+  existe uno con el mismo identificador, te pregunta si reemplazarlo.
+- La biblioteca completa se exporta e importa desde **Ajustes**.
+
 ### Durante la partida
 
 - **Ficha**: resumen del personaje activo con PG, CA, características y rasgos.

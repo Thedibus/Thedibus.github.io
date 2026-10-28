@@ -16,6 +16,7 @@ import {
 import { conSigno, esc, toast } from "../util.js";
 import { bloqueRasgos, bloqueRetrato, bloqueStats, bloqueVida, chipsHabilidades, listaInventario, listaNotas, mensajeEstado, rejillaHabilidades } from "./comun.js";
 import { abrirEditor } from "./editor.js";
+import { exportarPersonaje } from "../transferencia.js";
 
 let raiz = null;
 let fichaAbiertaId = null;
@@ -260,8 +261,9 @@ function plantillaCompleta(pj) {
   </div>
 
   <footer class="dialogo-pie">
+    <button type="button" class="btn" data-exportar="${esc(pj.id)}">Exportar</button>
     <button type="button" class="btn" data-cerrar>Cerrar</button>
-    <button type="button" class="btn primario" data-editar="${esc(pj.id)}">Editar ficha</button>
+    <button type="button" class="btn primario" data-editar="${esc(pj.id)}">Editar</button>
   </footer>`;
 }
 
@@ -309,6 +311,12 @@ async function alClicDialogo(evento) {
       document.getElementById("dialogo-ficha")?.close();
       abrirEditor(pj);
     }
+    return;
+  }
+
+  const exportarBoton = evento.target.closest("[data-exportar]");
+  if (exportarBoton) {
+    exportarPersonaje(exportarBoton.dataset.exportar);
     return;
   }
 

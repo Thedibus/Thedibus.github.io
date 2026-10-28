@@ -3,11 +3,12 @@
 import OBR from "../vendor/owlbear-sdk.js";
 import { ROL_ETIQUETA } from "./config.js";
 import { normalizar, personajeNuevo } from "./model.js";
-import { desvincularTodosLosTokens, iniciarTienda, reemplazarBiblioteca, setActivo, store } from "./store.js";
+import { desvincularTodosLosTokens, estadisticasDe, iniciarTienda, reemplazarBiblioteca, setActivo, store } from "./store.js";
 import { $, $$, confirmar, descargarJson, esc, leerArchivo, toast } from "./util.js";
 import { abrirEditor } from "./ui/editor.js";
 import { montarDialogoFicha, montarFicha, pintarFicha, pintarFichaCompleta } from "./ui/ficha.js";
 import { montarPjs, pintarPjs } from "./ui/pjs.js";
+import { importarPersonaje } from "./transferencia.js";
 
 let panelActivo = "ficha";
 let renderPendiente = false;
@@ -196,8 +197,8 @@ function pintarAjustes() {
       <fieldset>
         <legend>Biblioteca de PJs</legend>
         <div class="btn-fila">
-          <button class="btn" data-aj="exportar">Exportar</button>
-          <button class="btn" data-aj="importar">Importar</button>
+          <button class="btn" data-aj="exportar">Exportar biblioteca</button>
+          <button class="btn" data-aj="importar">Importar biblioteca</button>
           <button class="btn" data-aj="ejemplo">Cargar ejemplo</button>
         </div>
         <p class="ayuda">Los PJs se guardan en la sala y los ve todo el mundo. Exporta de vez en cuando para tener copia.</p>
@@ -249,15 +250,24 @@ function exportar() {
     toast("No hay PJs que exportar", "aviso");
     return;
   }
+
+  // La copia incluye los PG/CA que se ven ahora mismo, no solo los de la ficha:
+  // así una restauración no pierde la vida que había en los tokens.
+  const personajes = store.personajes.map((pj) => {
+    const est = estadisticasDe(pj);
+    if (!est) return pj;
+    return { ...pj, hp: est.hp, hpMax: est.hpMax, ac: est.ac };
+  });
+
   descargarJson("mesa-de-heroes-pjs.json", {
     version: 2,
     exportado: new Date().toISOString(),
-    personajes: store.personajes,
+    personajes,
   });
   toast("Biblioteca exportada", "ok");
 }
 
-async function importar(archivo) {
+async function importarBiblioteca(archivo) {
   try {
     const texto = await leerArchivo(archivo);
     const datos = JSON.parse(texto);
@@ -319,16 +329,21 @@ function conectarControles() {
   }
 
   $("#btn-nuevo")?.addEventListener("click", () => abrirEditor(null));
-  $("#btn-exportar")?.addEventListener("click", exportar);
-  $("#btn-importar")?.addEventListener("click", () => $("#input-archivo").click());
+  $("#btn-importar-pj")?.addEventListener("click", () => $("#input-pj").click());
   $("#btn-tamano")?.addEventListener("click", () => {
     aplicarTamano(!document.body.classList.contains("panel-grande"));
+  });
+
+  $("#input-pj")?.addEventListener("change", (evento) => {
+    const archivo = evento.target.files?.[0];
+    evento.target.value = "";
+    if (archivo) importarPersonaje(archivo);
   });
 
   $("#input-archivo")?.addEventListener("change", (evento) => {
     const archivo = evento.target.files?.[0];
     evento.target.value = "";
-    if (archivo) importar(archivo);
+    if (archivo) importarBiblioteca(archivo);
   });
 
   $("#panel-ajustes")?.addEventListener("click", alClicAjustes);
