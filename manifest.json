@@ -1,0 +1,16 @@
+{
+  "name": "Mesa de Héroes",
+  "version": "1.0.0",
+  "manifest_version": 1,
+  "author": "Mesa de Héroes",
+  "description": "Fichas de PJ con PG y CA vinculadas a los tokens, y tiradas de dados con modificadores automáticos.",
+  "icon": "/icon.svg",
+  "action": {
+    "title": "Mesa de Héroes",
+    "icon": "/icon.svg",
+    "popover": "/index.html",
+    "width": 400,
+    "height": 680
+  },
+  "background_url": "/background.html"
+}

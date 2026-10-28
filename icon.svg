@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="Mesa de Héroes">
+  <defs>
+    <linearGradient id="mdh-g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#8b5cf6"/>
+      <stop offset="1" stop-color="#4c1d95"/>
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="14" fill="url(#mdh-g)"/>
+  <polygon points="32,8 51,19 51,41 32,56 13,41 13,19" fill="none" stroke="#f5d08a" stroke-width="3" stroke-linejoin="round"/>
+  <polygon points="32,20 43,26.5 43,38 32,46 21,38 21,26.5" fill="none" stroke="#f5d08a" stroke-width="2" opacity=".8"/>
+  <path d="M32 8 L32 20 M51 19 L43 26.5 M51 41 L43 38 M32 56 L32 46 M13 41 L21 38 M13 19 L21 26.5"
+        stroke="#f5d08a" stroke-width="2" opacity=".55" stroke-linecap="round"/>
+</svg>
