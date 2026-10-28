@@ -1,6 +1,6 @@
-﻿/* ==========================================================================
-   Mesa de HÃƒÂ©roes Ã‚Â· hoja de estilos
-   Un ÃƒÂºnico archivo para el popover, la tarjeta de token y el diÃƒÂ¡logo.
+/* ==========================================================================
+   Mesa de Héroes · hoja de estilos
+   Un único archivo para el popover, la tarjeta de token y el diálogo.
    ========================================================================== */
 
 :root {
@@ -423,7 +423,7 @@ img, svg { display: block; }
 .interruptor strong { font-size: 12.5px; font-weight: 600; }
 .interruptor span { font-size: 11.5px; color: var(--texto-tenue); }
 
-/* ---------------------------------------------------------------- diÃƒÂ¡logo  */
+/* ---------------------------------------------------------------- diálogo  */
 
 .dialogo {
   border: 1px solid var(--linea);
@@ -548,7 +548,7 @@ legend {
   to { opacity: 0; transform: translateY(6px); }
 }
 
-/* ------------------------------------------- tarjeta del token (menÃƒÂº ctx.) */
+/* ------------------------------------------- tarjeta del token (menú ctx.) */
 
 body.tarjeta {
   background: var(--bg);
@@ -578,10 +578,16 @@ body.tarjeta {
   border-radius: var(--radio);
   padding: 13px;
   display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   gap: 12px;
   position: relative;
   overflow: hidden;
 }
+
+.ficha-cab,
+.ficha-card > .vida,
+.ficha-card > .stats,
+.ficha-card > .ficha-acciones { grid-column: 1 / -1; }
 
 .ficha-cab { display: flex; align-items: center; gap: 10px; }
 .ficha-id { flex: 1; min-width: 0; }
@@ -646,15 +652,105 @@ body.tarjeta {
 
 .dialogo-cabecera > div:not(.retrato) { flex: 1; min-width: 0; }
 
-.ficha-vida { display: flex; align-items: center; gap: 10px; }
-.ficha-vida .pv { flex: 1; min-width: 0; }
-.pv-temp {
-  display: block;
-  margin-top: 4px;
-  font-size: 10.5px;
-  color: var(--aviso);
-  font-variant-numeric: tabular-nums;
+/* cambiador de personaje */
+.cambiador { display: grid; gap: 5px; }
+.cambiador-lista {
+  display: flex;
+  gap: 5px;
+  overflow-x: auto;
+  padding: 1px 1px 3px;
+  scrollbar-width: thin;
 }
+.cambiador-pj {
+  appearance: none;
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 11px 4px 4px;
+  border-radius: 999px;
+  border: 1px solid var(--linea-suave);
+  background: var(--bg-elev);
+  color: var(--texto);
+  font-size: 11.5px;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.cambiador-pj:hover { border-color: var(--linea); }
+.cambiador-pj.es-activo { border-color: var(--acento); background: var(--bg-elev-2); }
+.cambiador-inicial {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(135deg, var(--acento), var(--acento-oscuro));
+  color: var(--acento-tinta);
+  font-size: 11px;
+  font-weight: 800;
+}
+.cambiador-nombre { max-width: 130px; overflow: hidden; text-overflow: ellipsis; }
+
+/* listas de la ficha */
+.lista-ficha { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
+.lista-ficha li {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding: 6px 9px;
+  border-radius: 7px;
+  border: 1px solid var(--linea-suave);
+  background: var(--bg-sunken);
+  font-size: 12px;
+}
+.inv-nombre { font-weight: 600; }
+.inv-cant { color: var(--oro); font-weight: 700; font-variant-numeric: tabular-nums; }
+.inv-detalle { color: var(--texto-tenue); font-size: 11px; }
+
+/* editor de listas */
+.editor-lista { display: grid; gap: 5px; }
+.editor-fila { display: flex; gap: 5px; align-items: center; }
+.editor-fila input { flex: 1; min-width: 0; }
+.editor-fila .fila-cant { flex: none; width: 62px; text-align: center; }
+.editor-fila-inv .fila-nombre { flex: 1.4; }
+.editor-fila-inv .fila-detalle { flex: 1.6; }
+.editor-fila .btn.icono { flex: none; }
+.agregar { margin-top: 2px; align-self: start; }
+
+.cabecera-acciones { display: flex; align-items: center; gap: 4px; flex: none; }
+
+@media (min-width: 620px) {
+  .dialogo-ficha { width: min(720px, calc(100vw - 24px)); }
+  .dialogo-ficha .dialogo-cuerpo { grid-template-columns: 1fr 1fr; }
+  .dialogo-ficha .ancho-completo { grid-column: 1 / -1; }
+  .dialogo-pj { width: min(680px, calc(100vw - 24px)); }
+}
+
+.vida { display: grid; gap: 7px; }
+.vida-tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(86px, 1fr)); gap: 6px; }
+.vida-tile {
+  min-height: 54px;
+  padding: 7px 10px;
+  border: 1px solid var(--linea-suave);
+  border-radius: 10px;
+  background: var(--bg-sunken);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 1px;
+}
+.vida-tile span {
+  font-size: 9.5px;
+  font-weight: 800;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  color: var(--texto-tenue);
+}
+.vida-tile b { font-size: 22px; line-height: 1.05; font-variant-numeric: tabular-nums; }
+.vida-tile b s { text-decoration: none; font-size: 12.5px; color: var(--texto-tenue); margin-left: 3px; }
+.vida-temp b { color: var(--aviso); }
+.vida .pv-barra { height: 8px; }
 
 .stats { display: grid; grid-template-columns: repeat(6, 1fr); gap: 5px; }
 

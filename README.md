@@ -5,8 +5,11 @@ compartidas con «Stat Bubbles for D&D»**: si bajas los PG desde las burbujas d
 token, la ficha lo refleja; si los cambias en la ficha, las burbujas se
 actualizan.
 
+- **Panel adaptable**: botón ⤢ en la cabecera para pasar de 400×680 a 760×860.
+  La ficha se recoloca sola en una o dos columnas según el ancho.
 - **Ficha compacta**: nombre, clase, PG, CA, las seis características con su
-  abreviatura (FUE, DES, CON, INT, SAB, CAR), modificador y valor, y los rasgos.
+  abreviatura (FUE, DES, CON, INT, SAB, CAR), modificador y valor, habilidades
+  competentes y rasgos.
 - **Retrato del token**: si el PJ está vinculado a un token que está en la
   escena, su imagen aparece en la ficha (compacta y completa). Sin token, se
   muestra la inicial del personaje.
@@ -14,11 +17,12 @@ actualizan.
   (característica + competencia). En la ficha compacta se ven solo las
   competentes; en la ficha entera, todas.
 - **Ficha entera**: un panel con todos los datos del PJ (PG/CA editables,
-  habilidades, derivados, salvaciones, rasgos y notas).
+  habilidades, derivados, salvaciones, rasgos, inventario y notas).
 - **Vida compartida con Stat Bubbles**: los PG/CA viven en los metadatos del
   token, en las mismas claves que usa Bubbles, así que los dos paneles ven lo
   mismo y se puede ajustar la vida desde el mapa sin abrir esta extensión.
-- **Rasgos y notas**: se añaden desde el editor, uno por línea.
+- **Rasgos, inventario y notas**: listas con filas que se añaden y se quitan
+  desde el editor. El inventario guarda cantidad y detalle por objeto.
 - **Biblioteca compartida**: los PJs se guardan en la sala y los ve todo el
   mundo. Importar/exportar en JSON.
 - **Menú contextual del token**: clic derecho sobre el token → ficha compacta
@@ -77,11 +81,15 @@ Aparece el botón **Mesa de Héroes** arriba a la izquierda.
 1. Pestaña **PJs** → **+ Nuevo PJ**.
 2. Rellena nombre, clase, nivel, PG, CA y las seis características. El
    modificador se calcula solo.
-3. En **Rasgos y habilidades** escribe uno por línea; se mostrarán como
-   etiquetas.
+3. En **Rasgos**, **Inventario** y **Notas** añade filas con el botón **+**.
+   Cada objeto del inventario tiene nombre, cantidad y detalle; las notas son
+   una lista de recordatorios.
 4. Marca en **Habilidades competentes** las que domine (Atletismo, Sigilo,
    Persuasión…). El bono se calcula solo: característica + competencia.
 5. **Guardar**.
+
+Con el botón **⤢** de la cabecera el panel pasa a 760×860 y la ficha se
+reorganiza en dos columnas; **⤡** lo devuelve a 400×680.
 
 ### Vincular el personaje a un token
 
@@ -131,6 +139,9 @@ Consecuencias:
   en `logo/png/` (16 a 512 px) y `favicon.ico`. La composición con el nombre es
   `logo/lockup-pergamino.svg|png`, y las cinco propuestas originales siguen en
   `logo/propuestas-logos.png`.
+- **Icono del botón**: `icons/accion.png` (transparente). Owlbear tiñe el icono
+  de la barra con el color del jugador, así que el botón necesita una silueta
+  sin fondo; el logo completo con fondo se usa en el manifiesto y en la ficha.
 - **Colores e interfaz**: `css/estilos.css` (variables al principio, tema claro
   y oscuro automático).
 - **Datos de ejemplo**: `js/app.js` (`EJEMPLO`).
@@ -148,6 +159,8 @@ hace falta Node ni compilar.
 | La ficha muestra `—` | El token está oculto para jugadores | Desactiva `hide` en Bubbles o entra como director |
 | No se guardan los cambios | Permisos de la sala o del token | Comprueba los permisos de jugador |
 | Los PG de la ficha no cambian al tocar el token | El evento de escena aún no llegó | Espera un instante; se refresca solo |
+| El botón de la extensión se ve como un cuadro de color | El icono tiene fondo opaco y Owlbear lo tiñe | Usa `icons/accion.png` (transparente) en `action.icon` |
+| El nombre sale con caracteres raros (tildes rotas) | El manifiesto se guardó con doble codificación | Guarda `manifest.json` en UTF-8 sin BOM |
 
 ## 7. Estructura
 
@@ -173,6 +186,11 @@ icons/ficha.svg        → icono del menú contextual
 
 ## 8. Historial
 
+- **2.2.1** — Icono de acción transparente para la barra de Owlbear y
+  `manifest.json` corregido (sin BOM ni doble codificación).
+- **2.2.0** — Panel redimensionable (400×680 ↔ 760×860) y ficha en una o dos
+  columnas; PG/CA en fichas alineadas; cambiador de personaje activo con
+  iniciales; rasgos sin recorte; inventario y notas como listas con filas.
 - **2.1.1** — Logo definitivo (pergamino y sello): icono de la extensión,
   favicon, tamaños 16–512 px, lockup con el nombre e icono monocromo del menú.
 - **2.1.0** — Retrato del token en la ficha y las 18 habilidades con su bono

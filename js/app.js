@@ -11,6 +11,7 @@ import { montarPjs, pintarPjs } from "./ui/pjs.js";
 
 let panelActivo = "ficha";
 let renderPendiente = false;
+const CLAVE_TAMANO = "mdh:tamano";
 
 /* ------------------------------------------------------------------- ejemplo */
 
@@ -27,7 +28,12 @@ const EJEMPLO = [
     salvaciones: { str: false, dex: true, con: false, int: true, wis: false, cha: false },
     habilidades: { sigilo: true, "juego-de-manos": true, percepcion: true },
     rasgos: ["Ataque furtivo 2d6", "Esquiva", "Visión en la oscuridad", "Herramientas de ladrón"],
-    notas: "Contacto en la guild de ladrones del puerto.",
+    inventario: [
+      { nombre: "Dagas", cantidad: 2, detalle: "1d4+3" },
+      { nombre: "Herramientas de ladrón", cantidad: 1, detalle: "" },
+      { nombre: "Cuerda de seda", cantidad: 1, detalle: "15 m" },
+    ],
+    notas: ["Contacto en la guild de ladrones del puerto.", "Debe un favor a la capitana."],
   },
   {
     nombre: "Borin Martillode Hierro",
@@ -41,7 +47,12 @@ const EJEMPLO = [
     salvaciones: { str: false, dex: false, con: true, int: false, wis: true, cha: false },
     habilidades: { religion: true, medicina: true, perspicacia: true },
     rasgos: ["Canalizar divinidad", "Resistencia enana", "Palabra curativa 1d8+3"],
-    notas: "Sirve a Moradin. Lleva un martillo de guerra consagrado.",
+    inventario: [
+      { nombre: "Martillo de guerra", cantidad: 1, detalle: "1d8+2" },
+      { nombre: "Símbolo sagrado", cantidad: 1, detalle: "de Moradin" },
+      { nombre: "Poción de curación", cantidad: 2, detalle: "2d4+2" },
+    ],
+    notas: ["Sirve a Moradin.", "Busca la forja perdida de su clan."],
   },
   {
     nombre: "Sella Estrella",
@@ -55,7 +66,12 @@ const EJEMPLO = [
     salvaciones: { str: false, dex: false, con: false, int: true, wis: true, cha: false },
     habilidades: { arcano: true, historia: true, investigacion: true },
     rasgos: ["Rayo de fuego 2d6", "Escudo arcano", "Trance élfico", "Bola de fuego"],
-    notas: "Busca el grimorio perdido de su maestro.",
+    inventario: [
+      { nombre: "Grimorio", cantidad: 1, detalle: "3 conjuros" },
+      { nombre: "Componentes", cantidad: 1, detalle: "bolsa" },
+      { nombre: "Poción de curación", cantidad: 1, detalle: "2d4+2" },
+    ],
+    notas: ["Busca el grimorio perdido de su maestro."],
   },
 ];
 
@@ -90,7 +106,42 @@ async function arrancar() {
   $("#rol").textContent = ROL_ETIQUETA[store.rol] ?? store.rol;
   $("#rol").dataset.rol = store.rol;
 
+  let tamanoGuardado = null;
+  try {
+    tamanoGuardado = localStorage.getItem(CLAVE_TAMANO);
+  } catch {
+    tamanoGuardado = null;
+  }
+  if (tamanoGuardado === "grande") aplicarTamano(true, false);
+
   renderizar();
+}
+
+/** Cambia entre el panel compacto (400×680) y el ancho (760×860). */
+async function aplicarTamano(grande, persistir = true) {
+  document.body.classList.toggle("panel-grande", grande);
+  const boton = $("#btn-tamano");
+  if (boton) {
+    boton.textContent = grande ? "⤡" : "⤢";
+    boton.title = grande ? "Reducir panel" : "Ampliar panel";
+    boton.setAttribute("aria-label", boton.title);
+  }
+
+  try {
+    if (typeof OBR.action?.setWidth === "function") {
+      await OBR.action.setWidth(grande ? 760 : 400);
+      await OBR.action.setHeight(grande ? 860 : 680);
+    }
+  } catch (error) {
+    console.warn("[Mesa de Héroes] no se pudo cambiar el tamaño del panel", error);
+  }
+
+  if (!persistir) return;
+  try {
+    localStorage.setItem(CLAVE_TAMANO, grande ? "grande" : "normal");
+  } catch {
+    /* almacenamiento no disponible */
+  }
 }
 
 function programarRender() {
@@ -285,6 +336,9 @@ function conectarControles() {
   $("#btn-nuevo")?.addEventListener("click", () => abrirEditor(null));
   $("#btn-exportar")?.addEventListener("click", exportar);
   $("#btn-importar")?.addEventListener("click", () => $("#input-archivo").click());
+  $("#btn-tamano")?.addEventListener("click", () => {
+    aplicarTamano(!document.body.classList.contains("panel-grande"));
+  });
 
   $("#input-archivo")?.addEventListener("change", (evento) => {
     const archivo = evento.target.files?.[0];

@@ -97,15 +97,44 @@ export function bloqueVida(pj, est, { oculto = false } = {}) {
   const estado = estadoVida(hp, hpMax);
   const pct = hpMax && hpMax > 0 ? Math.round(Math.min(100, Math.max(0, (hp / hpMax) * 100))) : 0;
 
-  return `<div class="ficha-vida">
-    <div class="pv">
-      <div class="pv-texto">
-        <span>Puntos de golpe</span>
-        <b>${oculto ? "—" : `${hp} / ${hpMax}`}</b>
+  return `<div class="vida">
+    <div class="vida-tiles">
+      <div class="vida-tile">
+        <span>PG</span>
+        <b>${oculto ? "—" : `${hp}<s> / ${hpMax}</s>`}</b>
       </div>
-      <div class="pv-barra" data-estado="${estado}"><i style="width:${pct}%"></i></div>
-      ${!oculto && est.temp > 0 ? `<span class="pv-temp">+${est.temp} PG temporales</span>` : ""}
+      <div class="vida-tile">
+        <span>CA</span>
+        <b>${oculto ? "—" : ac}</b>
+      </div>
+      ${
+        !oculto && est.temp > 0
+          ? `<div class="vida-tile vida-temp"><span>TEMP</span><b>+${est.temp}</b></div>`
+          : ""
+      }
     </div>
-    <div class="ca"><b>${oculto ? "—" : ac}</b><span>CA</span></div>
+    <div class="pv-barra" data-estado="${estado}"><i style="width:${pct}%"></i></div>
   </div>`;
+}
+
+/** Lista de notas, como filas de inventario. */
+export function listaNotas(notas) {
+  if (!notas || notas.length === 0) return `<p class="ayuda">Sin notas.</p>`;
+  return `<ul class="lista-ficha">${notas.map((nota) => `<li>${esc(nota)}</li>`).join("")}</ul>`;
+}
+
+/** Inventario con cantidad y detalle. */
+export function listaInventario(items) {
+  if (!items || items.length === 0) return `<p class="ayuda">Inventario vacío.</p>`;
+  return `<ul class="lista-ficha lista-inventario">
+    ${items
+      .map(
+        (item) => `<li>
+          <span class="inv-nombre">${esc(item.nombre)}</span>
+          ${item.cantidad > 1 ? `<span class="inv-cant">×${item.cantidad}</span>` : ""}
+          ${item.detalle ? `<span class="inv-detalle">${esc(item.detalle)}</span>` : ""}
+        </li>`
+      )
+      .join("")}
+  </ul>`;
 }

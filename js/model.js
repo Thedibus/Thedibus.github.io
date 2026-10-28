@@ -63,7 +63,8 @@ export function personajeNuevo(extra = {}) {
     salvaciones: { str: false, dex: false, con: false, int: false, wis: false, cha: false },
     habilidades: {},
     rasgos: [],
-    notas: "",
+    inventario: [],
+    notas: [],
     actualizado: Date.now(),
   };
   return normalizar({ ...base, ...extra });
@@ -73,6 +74,42 @@ const numeroOpcional = (valor, minimo, maximo) => {
   if (valor === null || valor === undefined || valor === "") return null;
   return clamp(valor, minimo, maximo);
 };
+
+/** Lista de textos. Acepta array o texto con saltos de línea (versiones viejas). */
+function listaTexto(valor, limite = 40) {
+  if (Array.isArray(valor)) {
+    return valor
+      .map((entrada) => String(entrada ?? "").trim().slice(0, 300))
+      .filter(Boolean)
+      .slice(0, limite);
+  }
+  if (typeof valor === "string") {
+    return valor
+      .split(/\r?\n/)
+      .map((linea) => linea.trim().slice(0, 300))
+      .filter(Boolean)
+      .slice(0, limite);
+  }
+  return [];
+}
+
+/** Objetos del inventario: nombre, cantidad y detalle. */
+function listaInventario(valor) {
+  if (!Array.isArray(valor)) return [];
+  return valor
+    .map((item) => {
+      if (typeof item === "string") {
+        return { nombre: item.trim().slice(0, 80), cantidad: 1, detalle: "" };
+      }
+      return {
+        nombre: String(item?.nombre ?? "").trim().slice(0, 80),
+        cantidad: clamp(item?.cantidad ?? 1, 1, 9999),
+        detalle: String(item?.detalle ?? "").trim().slice(0, 160),
+      };
+    })
+    .filter((item) => item.nombre)
+    .slice(0, 80);
+}
 
 /** Convierte cualquier entrada en un PJ válido y completo. */
 export function normalizar(bruto = {}) {
@@ -113,7 +150,8 @@ export function normalizar(bruto = {}) {
     salvaciones,
     habilidades,
     rasgos,
-    notas: String(bruto.notas ?? "").slice(0, 2000),
+    inventario: listaInventario(bruto.inventario),
+    notas: listaTexto(bruto.notas),
     actualizado: Number(bruto.actualizado) || Date.now(),
   };
 }

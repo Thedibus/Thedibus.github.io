@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" fill="none" role="img" aria-label="Ficha del PJ">
+  <path d="M9 6h21l9 9v43H9z" stroke="#ffffff" stroke-width="4.2" stroke-linejoin="round"/>
+  <path d="M30 6v9h9" stroke="#ffffff" stroke-width="4.2" stroke-linejoin="round"/>
+  <path d="M17 27h16M17 35h16M17 43h10" stroke="#ffffff" stroke-width="4.2" stroke-linecap="round"/>
+  <path fill="#ffffff" fill-rule="evenodd"
+        d="M50 36a10 10 0 1 0 0 20 10 10 0 1 0 0-20Zm0 5.8 4.6 2.7v5.4L50 52.6l-4.6-2.7v-5.4Z"/>
+</svg>

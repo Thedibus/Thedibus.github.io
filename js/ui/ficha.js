@@ -14,7 +14,7 @@ import {
   vincularToken,
 } from "../store.js";
 import { conSigno, esc, toast } from "../util.js";
-import { bloqueRasgos, bloqueRetrato, bloqueStats, bloqueVida, chipsHabilidades, mensajeEstado, rejillaHabilidades } from "./comun.js";
+import { bloqueRasgos, bloqueRetrato, bloqueStats, bloqueVida, chipsHabilidades, listaInventario, listaNotas, mensajeEstado, rejillaHabilidades } from "./comun.js";
 import { abrirEditor } from "./editor.js";
 
 let raiz = null;
@@ -23,7 +23,6 @@ let fichaAbiertaId = null;
 export function montarFicha(contenedor) {
   raiz = contenedor;
   raiz.addEventListener("click", alHacerClic);
-  raiz.addEventListener("change", alCambiar);
 }
 
 export function montarDialogoFicha() {
@@ -54,10 +53,10 @@ export function pintarFicha() {
   const pj = personajeActivo() ?? store.personajes[0];
   const est = estadisticasDe(pj);
   const oculto = Boolean(est.oculto && store.rol === "PLAYER");
-  const chipsHab = chipsHabilidades(pj, 4);
+  const chipsHab = chipsHabilidades(pj, 6);
 
   raiz.innerHTML = `
-    ${selector(pj)}
+    ${cambiador(pj)}
     <article class="ficha-card" data-id="${esc(pj.id)}">
       <header class="ficha-cab">
         ${bloqueRetrato(pj, est)}
@@ -70,6 +69,7 @@ export function pintarFicha() {
                 ? `<span class="chip chip-ok" title="Vinculado a un token">🔗 ${esc(est.tokenNombre ?? "Token")}</span>`
                 : `<span class="chip chip-tenue">Sin token</span>`
             }
+            ${pj.inventario.length > 0 ? `<span class="chip chip-tenue">🎒 ${pj.inventario.length}</span>` : ""}
           </div>
         </div>
       </header>
@@ -89,7 +89,7 @@ export function pintarFicha() {
 
       <div class="ficha-rasgos">
         <span class="etiqueta">Rasgos</span>
-        ${bloqueRasgos(pj, 4)}
+        ${bloqueRasgos(pj)}
       </div>
 
       <div class="ficha-acciones">
@@ -119,21 +119,23 @@ export function pintarFicha() {
     </article>`;
 }
 
-function selector(pj) {
+function cambiador(pj) {
   if (store.personajes.length <= 1) return "";
-  return `<label class="campo ficha-selector">
+  return `<div class="cambiador">
     <span class="etiqueta">Personaje activo</span>
-    <select id="ficha-activo">
+    <div class="cambiador-lista">
       ${store.personajes
-        .map(
-          (p) =>
-            `<option value="${esc(p.id)}" ${p.id === pj.id ? "selected" : ""}>${esc(p.nombre)}${
-              p.clase ? ` · ${esc(p.clase)}` : ""
-            }</option>`
-        )
+        .map((p) => {
+          const inicial = (p.nombre || "?").trim().charAt(0).toUpperCase();
+          return `<button type="button" class="cambiador-pj ${p.id === pj.id ? "es-activo" : ""}"
+                          data-activo="${esc(p.id)}" title="${esc(p.nombre)}">
+            <span class="cambiador-inicial">${esc(inicial)}</span>
+            <span class="cambiador-nombre">${esc(p.nombre)}</span>
+          </button>`;
+        })
         .join("")}
-    </select>
-  </label>`;
+    </div>
+  </div>`;
 }
 
 /* ------------------------------------------------------------- ficha entera */
@@ -178,7 +180,7 @@ function plantillaCompleta(pj) {
   </header>
 
   <div class="dialogo-cuerpo">
-    <div class="ficha-token">
+    <div class="ficha-token ancho-completo">
       ${
         est.tokenId
           ? `<span class="chip chip-ok">🔗 ${esc(est.tokenNombre ?? "Token")}</span>
@@ -188,31 +190,33 @@ function plantillaCompleta(pj) {
       }
     </div>
 
-    ${bloqueVida(pj, est, { oculto })}
+    <div class="ancho-completo">${bloqueVida(pj, est, { oculto })}</div>
 
     ${
       oculto
-        ? `<p class="ayuda">El director ha ocultado estas estadísticas a los jugadores.</p>`
-        : `<div class="grid-edit">
-            <label class="campo"><span class="etiqueta">PG actuales</span>
-              <input type="number" data-campo="hp" min="0" max="${est.hpMax}" value="${est.hp}" />
-            </label>
-            <label class="campo"><span class="etiqueta">PG máximos</span>
-              <input type="number" data-campo="hpMax" min="1" max="9999" value="${est.hpMax}" />
-            </label>
-            <label class="campo"><span class="etiqueta">CA</span>
-              <input type="number" data-campo="ac" min="1" max="99" value="${est.ac}" />
-            </label>
-          </div>
-          <p class="ayuda">Los mismos PG y CA que muestran las burbujas del token.</p>`
+        ? `<p class="ayuda ancho-completo">El director ha ocultado estas estadísticas a los jugadores.</p>`
+        : `<div class="ancho-completo">
+            <div class="grid-edit">
+              <label class="campo"><span class="etiqueta">PG actuales</span>
+                <input type="number" data-campo="hp" min="0" max="${est.hpMax}" value="${est.hp}" />
+              </label>
+              <label class="campo"><span class="etiqueta">PG máximos</span>
+                <input type="number" data-campo="hpMax" min="1" max="9999" value="${est.hpMax}" />
+              </label>
+              <label class="campo"><span class="etiqueta">CA</span>
+                <input type="number" data-campo="ac" min="1" max="99" value="${est.ac}" />
+              </label>
+            </div>
+            <p class="ayuda">Los mismos PG y CA que muestran las burbujas del token.</p>
+          </div>`
     }
 
-    <fieldset>
+    <fieldset class="ancho-completo">
       <legend>Características</legend>
       ${bloqueStats(pj)}
     </fieldset>
 
-    <fieldset>
+    <fieldset class="ancho-completo">
       <legend>Habilidades</legend>
       ${rejillaHabilidades(pj)}
     </fieldset>
@@ -240,18 +244,19 @@ function plantillaCompleta(pj) {
     </fieldset>
 
     <fieldset>
-      <legend>Rasgos y habilidades</legend>
+      <legend>Rasgos</legend>
       ${bloqueRasgos(pj)}
     </fieldset>
 
-    ${
-      pj.notas
-        ? `<fieldset>
-            <legend>Notas</legend>
-            <p class="texto-largo">${esc(pj.notas)}</p>
-          </fieldset>`
-        : ""
-    }
+    <fieldset>
+      <legend>Inventario</legend>
+      ${listaInventario(pj.inventario)}
+    </fieldset>
+
+    <fieldset class="ancho-completo">
+      <legend>Notas</legend>
+      ${listaNotas(pj.notas)}
+    </fieldset>
   </div>
 
   <footer class="dialogo-pie">
@@ -263,6 +268,13 @@ function plantillaCompleta(pj) {
 /* ------------------------------------------------------------------ eventos */
 
 async function alHacerClic(evento) {
+  const activo = evento.target.closest("[data-activo]");
+  if (activo) {
+    await setActivo(activo.dataset.activo);
+    pintarFicha();
+    return;
+  }
+
   const boton = evento.target.closest("[data-accion]");
   if (!boton) return;
 
@@ -306,13 +318,6 @@ async function alClicDialogo(evento) {
   const desvincularBoton = evento.target.closest("[data-desvincular]");
   if (desvincularBoton) return desvincular(desvincularBoton.dataset.desvincular);
   return undefined;
-}
-
-function alCambiar(evento) {
-  if (evento.target.id === "ficha-activo") {
-    setActivo(evento.target.value);
-    pintarFicha();
-  }
 }
 
 async function alCambiarDialogo(evento) {

@@ -102,16 +102,29 @@ function plantilla(pj, esNuevo, est) {
         <span class="ayuda">Marca las que domine: el bono suma su característica + competencia.</span>
       </fieldset>
 
-      <label class="campo">
-        <span class="etiqueta">Rasgos y habilidades</span>
-        <textarea name="rasgos" rows="4" placeholder="Uno por línea:&#10;Ataque furtivo 2d6&#10;Visión en la oscuridad&#10;Esquiva">${esc((pj.rasgos ?? []).join("\n"))}</textarea>
-        <span class="ayuda">Un rasgo por línea. Se muestran como etiquetas en la ficha.</span>
-      </label>
+      <fieldset>
+        <legend>Rasgos</legend>
+        <div class="editor-lista" data-lista="rasgos">
+          ${(pj.rasgos ?? []).map((rasgo) => filaRasgo(rasgo)).join("")}
+        </div>
+        <button type="button" class="btn agregar" data-agregar="rasgos">+ Añadir rasgo</button>
+      </fieldset>
 
-      <label class="campo">
-        <span class="etiqueta">Notas</span>
-        <textarea name="notas" rows="3" maxlength="2000" placeholder="Objetos, contactos, recordatorios…">${esc(pj.notas)}</textarea>
-      </label>
+      <fieldset>
+        <legend>Inventario</legend>
+        <div class="editor-lista" data-lista="inventario">
+          ${(pj.inventario ?? []).map((item) => filaInventario(item)).join("")}
+        </div>
+        <button type="button" class="btn agregar" data-agregar="inventario">+ Añadir objeto</button>
+      </fieldset>
+
+      <fieldset>
+        <legend>Notas</legend>
+        <div class="editor-lista" data-lista="notas">
+          ${(pj.notas ?? []).map((nota) => filaNota(nota)).join("")}
+        </div>
+        <button type="button" class="btn agregar" data-agregar="notas">+ Añadir nota</button>
+      </fieldset>
     </div>
 
     <footer class="dialogo-pie">
@@ -120,6 +133,31 @@ function plantilla(pj, esNuevo, est) {
     </footer>
   </form>`;
 }
+
+function filaRasgo(valor = "") {
+  return `<div class="editor-fila" data-fila>
+    <input class="fila-texto" maxlength="160" value="${esc(valor)}" placeholder="Rasgo o habilidad" />
+    <button type="button" class="btn icono" data-quitar aria-label="Quitar">✕</button>
+  </div>`;
+}
+
+function filaInventario(item = {}) {
+  return `<div class="editor-fila editor-fila-inv" data-fila>
+    <input class="fila-nombre" maxlength="80" value="${esc(item.nombre ?? "")}" placeholder="Objeto" />
+    <input class="fila-cant" type="number" min="1" max="9999" value="${item.cantidad ?? 1}" aria-label="Cantidad" />
+    <input class="fila-detalle" maxlength="160" value="${esc(item.detalle ?? "")}" placeholder="Detalle" />
+    <button type="button" class="btn icono" data-quitar aria-label="Quitar">✕</button>
+  </div>`;
+}
+
+function filaNota(valor = "") {
+  return `<div class="editor-fila" data-fila>
+    <input class="fila-texto" maxlength="300" value="${esc(valor)}" placeholder="Nota" />
+    <button type="button" class="btn icono" data-quitar aria-label="Quitar">✕</button>
+  </div>`;
+}
+
+const FILAS = { rasgos: filaRasgo, inventario: filaInventario, notas: filaNota };
 
 /** Abre el diálogo. Sin argumento crea un PJ nuevo. */
 export function abrirEditor(pj = null) {
@@ -143,6 +181,21 @@ export function abrirEditor(pj = null) {
   const formulario = dialogo.querySelector("form");
   const campoNivel = formulario.elements.nivel;
   const campoComp = formulario.elements.bonoCompetencia;
+
+  for (const boton of formulario.querySelectorAll("[data-agregar]")) {
+    boton.addEventListener("click", () => {
+      const lista = formulario.querySelector(`[data-lista="${boton.dataset.agregar}"]`);
+      const crear = FILAS[boton.dataset.agregar];
+      if (!lista || !crear) return;
+      lista.insertAdjacentHTML("beforeend", crear());
+      lista.lastElementChild?.querySelector("input")?.focus();
+    });
+  }
+
+  formulario.addEventListener("click", (evento) => {
+    const quitar = evento.target.closest("[data-quitar]");
+    if (quitar) quitar.closest("[data-fila]")?.remove();
+  });
 
   const refrescarCompetencia = () => {
     if (campoComp.value !== "") return;
@@ -216,10 +269,23 @@ function recoger(formulario, base) {
 
   const opcional = (valor) => (valor === null || String(valor).trim() === "" ? null : Number(valor));
 
-  const rasgos = String(datos.get("rasgos") ?? "")
-    .split("\n")
-    .map((linea) => linea.trim())
+  const filas = (lista) => [...formulario.querySelectorAll(`[data-lista="${lista}"] [data-fila]`)];
+
+  const rasgos = filas("rasgos")
+    .map((fila) => fila.querySelector(".fila-texto").value.trim())
     .filter(Boolean);
+
+  const notas = filas("notas")
+    .map((fila) => fila.querySelector(".fila-texto").value.trim())
+    .filter(Boolean);
+
+  const inventario = filas("inventario")
+    .map((fila) => ({
+      nombre: fila.querySelector(".fila-nombre").value.trim(),
+      cantidad: Number(fila.querySelector(".fila-cant").value) || 1,
+      detalle: fila.querySelector(".fila-detalle").value.trim(),
+    }))
+    .filter((item) => item.nombre);
 
   return {
     ...base,
@@ -232,7 +298,8 @@ function recoger(formulario, base) {
     velocidad: Number(datos.get("velocidad")),
     bonoCompetencia: opcional(datos.get("bonoCompetencia")),
     rasgos,
-    notas: String(datos.get("notas") ?? ""),
+    inventario,
+    notas,
     caracteristicas,
     salvaciones,
     habilidades,
