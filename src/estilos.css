@@ -391,7 +391,7 @@ img, svg { display: block; }
   padding: 13px 14px;
   border-bottom: 1px solid var(--linea-suave);
 }
-.dialogo-cabecera h2 { font-size: 14px; }
+.dialogo-cabecera h2 { font-size: 14px; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
 .dialogo-cuerpo {
   padding: 13px 14px;
@@ -680,20 +680,6 @@ body.tarjeta {
 
 .cabecera-acciones { display: flex; align-items: center; gap: 4px; flex: none; }
 
-@media (min-width: 620px) {
-  .dialogo-ficha .dialogo-cuerpo { grid-template-columns: 1fr 1fr; }
-  .dialogo-ficha .ancho-completo { grid-column: 1 / -1; }
-  .dialogo-ficha .dialogo-pie { justify-content: flex-end; }
-  .dialogo-ficha .dialogo-pie .btn { flex: 0 0 auto; min-width: 110px; }
-  .dialogo-pj { width: min(680px, calc(100vw - 24px)); }
-}
-
-@media (min-width: 700px) {
-  .dialogo-ficha .dialogo-cuerpo { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-  .dialogo-ficha .ancho-3 { grid-column: 1 / -1; }
-  .dialogo-ficha .habilidades { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-}
-
 .vida { display: grid; gap: 7px; }
 .vida-tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(86px, 1fr)); gap: 6px; }
 .vida-tile {
@@ -805,12 +791,6 @@ body.tarjeta {
 .save b { margin-left: auto; font-variant-numeric: tabular-nums; }
 .save .punto { width: 6px; height: 6px; border-radius: 50%; background: var(--acento); }
 
-.dialogo-ficha {
-  width: min(calc(100vw - 16px), 980px);
-  max-height: calc(100vh - 16px);
-  max-height: calc(100dvh - 16px);
-}
-
 .dialogo-ficha .dialogo-cabecera,
 .dialogo-ficha .dialogo-pie { flex: none; }
 
@@ -836,3 +816,106 @@ body.tarjeta {
   }
 }
 
+
+
+/* ------------------------------------------------ ventanas y microinteracciones */
+
+.dialogo {
+  width: min(520px, calc(100vw - 16px));
+  max-height: min(86vh, 800px);
+  border-radius: 12px;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.5);
+}
+
+#dialogo-confirmar { width: min(380px, calc(100vw - 16px)); }
+
+.dialogo-cabecera {
+  background: color-mix(in oklab, var(--bg-elev) 78%, var(--bg-elev-2));
+  padding: 9px 9px 9px 13px;
+}
+
+.ventana-controles { display: flex; align-items: center; gap: 2px; margin-left: auto; flex: none; }
+
+.btn-ventana {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: var(--texto-tenue);
+  width: 30px;
+  height: 28px;
+  border-radius: 7px;
+  display: grid;
+  place-items: center;
+  font-size: 14px;
+  line-height: 1;
+  padding: 0;
+  cursor: pointer;
+  transition: background-color 0.15s, color 0.15s;
+}
+.btn-ventana:hover { background: var(--bg-elev-2); color: var(--texto); }
+.btn-ventana[data-cerrar]:hover,
+.ventana-controles .btn-ventana[data-confirmar="no"]:hover { background: var(--mal); color: #fff; }
+.btn-ventana:focus-visible { outline: 2px solid var(--acento); outline-offset: 1px; }
+
+.dialogo-ficha,
+.dialogo-pj { width: min(520px, calc(100vw - 16px)); }
+
+.dialogo-ficha.ventana-grande,
+.dialogo-pj.ventana-grande {
+  width: min(calc(100vw - 16px), 980px);
+  height: calc(100vh - 16px);
+  height: calc(100dvh - 16px);
+  max-height: calc(100vh - 16px);
+  max-height: calc(100dvh - 16px);
+}
+
+.dialogo-ficha .dialogo-cuerpo { grid-template-columns: 1fr; }
+.dialogo-ficha .habilidades { grid-template-columns: 1fr 1fr; }
+.dialogo-ficha.ventana-grande .habilidades { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+.salvaciones-panel { display: grid; gap: 10px; grid-template-columns: 1fr; align-items: start; }
+.dialogo-ficha.ventana-grande .salvaciones-panel { grid-template-columns: minmax(0, 1fr) minmax(0, 1.8fr); }
+
+.dialogo-pj.ventana-grande .dialogo-cuerpo { grid-template-columns: 1fr 1fr; }
+.dialogo-pj.ventana-grande .ancho-completo { grid-column: 1 / -1; }
+.dialogo-pj.ventana-grande .habilidades-editor { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+.dialogo-ficha.ventana-grande .dialogo-pie,
+.dialogo-pj.ventana-grande .dialogo-pie { justify-content: flex-end; }
+.dialogo-ficha.ventana-grande .dialogo-pie .btn,
+.dialogo-pj.ventana-grande .dialogo-pie .btn { flex: 0 0 auto; min-width: 110px; }
+
+.pc,
+.habilidad,
+.vida-tile,
+.stat-heroe,
+.lista-ficha li,
+.save,
+.cambiador-pj,
+.chip { transition: background-color 0.15s, border-color 0.15s, color 0.15s, transform 0.12s, box-shadow 0.15s; }
+
+.pc:hover {
+  background: color-mix(in oklab, var(--bg-elev) 90%, var(--texto) 10%);
+  border-color: color-mix(in oklab, var(--acento) 45%, var(--linea));
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18);
+}
+.pc:active { transform: none; }
+
+.habilidad:hover,
+.vida-tile:hover,
+.stat-heroe:hover,
+.save:hover,
+.lista-ficha li:hover {
+  border-color: color-mix(in oklab, var(--acento) 45%, var(--linea));
+  background: color-mix(in oklab, var(--bg-sunken) 82%, var(--acento) 18%);
+}
+
+.chip:hover { filter: brightness(1.08); }
+.cambiador-pj:hover { border-color: var(--acento); transform: translateY(-1px); }
+
+.campo input:hover,
+.campo select:hover,
+.campo textarea:hover,
+.editor-fila input:hover,
+.ficha-card input:hover { border-color: color-mix(in oklab, var(--acento) 55%, var(--linea)); }

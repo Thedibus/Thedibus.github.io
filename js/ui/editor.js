@@ -4,6 +4,7 @@ import { escribirBurbujas } from "../bubbles.js";
 import { CARACTERISTICAS, HABILIDADES, abrev, bonoCompetencia, modificador, normalizar, personajeNuevo } from "../model.js";
 import { estadisticasDe, guardarPersonaje } from "../store.js";
 import { $, conSigno, esc, toast } from "../util.js";
+import { ajustarVentana, controlesVentana, manejarVentana } from "./ventana.js";
 
 function plantilla(pj, esNuevo, est) {
   const mods = Object.fromEntries(CARACTERISTICAS.map((c) => [c.clave, modificador(pj.caracteristicas[c.clave])]));
@@ -13,7 +14,7 @@ function plantilla(pj, esNuevo, est) {
   <form novalidate>
     <header class="dialogo-cabecera">
       <h2>${esNuevo ? "Nuevo personaje" : "Editar ficha"}</h2>
-      <button type="button" class="btn icono" data-cerrar aria-label="Cerrar">✕</button>
+      ${controlesVentana()}
     </header>
 
     <div class="dialogo-cuerpo">
@@ -94,7 +95,7 @@ function plantilla(pj, esNuevo, est) {
         </div>
       </fieldset>
 
-      <fieldset>
+      <fieldset class="ancho-completo">
         <legend>Habilidades competentes</legend>
         <div class="habilidades-editor">
           ${HABILIDADES.map(
@@ -117,19 +118,19 @@ function plantilla(pj, esNuevo, est) {
       </fieldset>
 
       <fieldset>
-        <legend>Inventario</legend>
-        <div class="editor-lista" data-lista="inventario">
-          ${(pj.inventario ?? []).map((item) => filaInventario(item)).join("")}
-        </div>
-        <button type="button" class="btn agregar" data-agregar="inventario">+ Añadir objeto</button>
-      </fieldset>
-
-      <fieldset>
         <legend>Notas</legend>
         <div class="editor-lista" data-lista="notas">
           ${(pj.notas ?? []).map((nota) => filaNota(nota)).join("")}
         </div>
         <button type="button" class="btn agregar" data-agregar="notas">+ Añadir nota</button>
+      </fieldset>
+
+      <fieldset class="ancho-completo">
+        <legend>Inventario</legend>
+        <div class="editor-lista" data-lista="inventario">
+          ${(pj.inventario ?? []).map((item) => filaInventario(item)).join("")}
+        </div>
+        <button type="button" class="btn agregar" data-agregar="inventario">+ Añadir objeto</button>
       </fieldset>
     </div>
 
@@ -199,6 +200,7 @@ export function abrirEditor(pj = null) {
   }
 
   formulario.addEventListener("click", (evento) => {
+    if (manejarVentana(evento, dialogo)) return;
     const quitar = evento.target.closest("[data-quitar]");
     if (quitar) quitar.closest("[data-fila]")?.remove();
   });
@@ -261,6 +263,7 @@ export function abrirEditor(pj = null) {
 
   if (dialogo.open) dialogo.close();
   dialogo.showModal();
+  ajustarVentana(dialogo);
   setTimeout(() => formulario.elements.nombre.select?.(), 60);
 }
 

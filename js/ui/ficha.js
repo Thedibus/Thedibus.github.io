@@ -17,6 +17,7 @@ import { conSigno, esc, toast } from "../util.js";
 import { bloqueRasgos, bloqueRetrato, bloqueStats, bloqueVida, chipsHabilidades, listaInventario, listaNotas, mensajeEstado, rejillaHabilidades } from "./comun.js";
 import { abrirEditor } from "./editor.js";
 import { exportarPersonaje } from "../transferencia.js";
+import { ajustarVentana, controlesVentana, manejarVentana } from "./ventana.js";
 
 let raiz = null;
 let fichaAbiertaId = null;
@@ -148,6 +149,7 @@ export function abrirFichaCompleta(id) {
   fichaAbiertaId = pj.id;
   dialogo.innerHTML = plantillaCompleta(pj);
   if (!dialogo.open) dialogo.showModal();
+  ajustarVentana(dialogo);
 }
 
 export function pintarFichaCompleta() {
@@ -177,7 +179,7 @@ function plantillaCompleta(pj) {
       <h2>${esc(pj.nombre)}</h2>
       <p class="ayuda">${esc(resumenClase(pj)) || "sin clase"}</p>
     </div>
-    <button type="button" class="btn icono" data-cerrar aria-label="Cerrar">✕</button>
+    ${controlesVentana()}
   </header>
 
   <div class="dialogo-cuerpo">
@@ -213,6 +215,26 @@ function plantillaCompleta(pj) {
     }
 
     <fieldset class="ancho-completo">
+      <legend>Salvaciones</legend>
+      <div class="salvaciones-panel">
+        <div class="mini-grid">
+          <div><span>Competencia</span><b>${conSigno(d.competencia)}</b></div>
+          <div><span>Iniciativa</span><b>${conSigno(d.iniciativa)}</b></div>
+          <div><span>Velocidad</span><b>${pj.velocidad} pies</b></div>
+        </div>
+        <div class="saves">
+          ${CARACTERISTICAS.map(
+            (c) => `<div class="save" title="${c.nombre}">
+              <span>${c.abrev}</span>
+              <b>${conSigno(d.salvaciones[c.clave])}</b>
+              ${pj.salvaciones[c.clave] ? `<i class="punto" title="Competente"></i>` : ""}
+            </div>`
+          ).join("")}
+        </div>
+      </div>
+    </fieldset>
+
+    <fieldset class="ancho-completo">
       <legend>Características</legend>
       ${bloqueStats(pj)}
     </fieldset>
@@ -222,34 +244,12 @@ function plantillaCompleta(pj) {
       ${rejillaHabilidades(pj)}
     </fieldset>
 
-    <fieldset>
-      <legend>Derivados</legend>
-      <div class="mini-grid">
-        <div><span>Competencia</span><b>${conSigno(d.competencia)}</b></div>
-        <div><span>Iniciativa</span><b>${conSigno(d.iniciativa)}</b></div>
-        <div><span>Velocidad</span><b>${pj.velocidad} pies</b></div>
-      </div>
-    </fieldset>
-
-    <fieldset>
-      <legend>Salvaciones</legend>
-      <div class="saves">
-        ${CARACTERISTICAS.map(
-          (c) => `<div class="save" title="${c.nombre}">
-            <span>${c.abrev}</span>
-            <b>${conSigno(d.salvaciones[c.clave])}</b>
-            ${pj.salvaciones[c.clave] ? `<i class="punto" title="Competente"></i>` : ""}
-          </div>`
-        ).join("")}
-      </div>
-    </fieldset>
-
-    <fieldset>
+    <fieldset class="ancho-completo">
       <legend>Rasgos</legend>
       ${bloqueRasgos(pj)}
     </fieldset>
 
-    <fieldset class="ancho-3">
+    <fieldset class="ancho-completo">
       <legend>Inventario</legend>
       ${listaInventario(pj.inventario)}
     </fieldset>
@@ -299,8 +299,11 @@ async function alHacerClic(evento) {
 }
 
 async function alClicDialogo(evento) {
+  const dialogo = document.getElementById("dialogo-ficha");
+  if (manejarVentana(evento, dialogo)) return;
+
   if (evento.target.closest("[data-cerrar]")) {
-    document.getElementById("dialogo-ficha")?.close();
+    dialogo?.close();
     return;
   }
 
@@ -308,7 +311,7 @@ async function alClicDialogo(evento) {
   if (editar) {
     const pj = buscarPersonaje(editar.dataset.editar);
     if (pj) {
-      document.getElementById("dialogo-ficha")?.close();
+      dialogo?.close();
       abrirEditor(pj);
     }
     return;

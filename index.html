@@ -65,13 +65,16 @@
     <form method="dialog">
       <header class="dialogo-cabecera">
         <h2 id="confirmar-titulo">Confirmar</h2>
+        <div class="ventana-controles">
+          <button type="button" class="btn-ventana" data-confirmar="no" title="Cerrar" aria-label="Cerrar">✕</button>
+        </div>
       </header>
       <div class="dialogo-cuerpo">
         <p id="confirmar-texto" class="ayuda"></p>
       </div>
       <footer class="dialogo-pie">
-        <button class="btn" value="no">Cancelar</button>
-        <button class="btn peligro" value="si" id="confirmar-si">Sí, continuar</button>
+        <button type="button" class="btn" data-confirmar="no">Cancelar</button>
+        <button type="button" class="btn peligro" data-confirmar="si" id="confirmar-si">Sí, continuar</button>
       </footer>
     </form>
   </dialog>

@@ -365,6 +365,14 @@ function conectarControles() {
 
   $("#panel-ajustes")?.addEventListener("click", alClicAjustes);
 
+  $("#dialogo-confirmar")?.addEventListener("click", (evento) => {
+    const boton = evento.target.closest("[data-confirmar]");
+    if (!boton) return;
+    const dialogo = evento.currentTarget;
+    dialogo.returnValue = boton.dataset.confirmar;
+    dialogo.close();
+  });
+
   document.addEventListener("mdh:ejemplo", cargarEjemplo);
 
   document.addEventListener("mdh:abrir-ficha", async (evento) => {
