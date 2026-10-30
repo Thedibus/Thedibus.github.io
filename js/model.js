@@ -4,7 +4,7 @@
  * como JSON plano (sin clases ni referencias).
  */
 
-import { clamp, uid } from "./util.js";
+import { clamp, uid } from "./util.js?v=2.6.1";
 
 export const CARACTERISTICAS = [
   { clave: "str", abrev: "FUE", nombre: "Fuerza" },

@@ -14,10 +14,13 @@ function actualizarBoton(dialogo) {
   boton.setAttribute("aria-label", boton.title);
 }
 
-/** Deja la ventana ampliada si el panel ya está ampliado. */
-export function ajustarVentana(dialogo) {
+/** Deja la ventana ampliada si el panel ya está ampliado (o si se fuerza). */
+export function ajustarVentana(dialogo, forzar = null) {
   if (!dialogo) return;
-  const grande = document.body.classList.contains("panel-grande") || window.innerWidth >= 700;
+  const grande =
+    typeof forzar === "boolean"
+      ? forzar
+      : document.body.classList.contains("panel-grande") || window.innerWidth >= 700;
   dialogo.classList.toggle("ventana-grande", grande);
   actualizarBoton(dialogo);
 }

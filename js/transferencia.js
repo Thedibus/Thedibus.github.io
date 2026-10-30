@@ -1,8 +1,8 @@
 /** Exportar e importar un único personaje (para jugadores). */
 
-import { normalizar } from "./model.js";
-import { buscarPersonaje, estadisticasDe, guardarPersonaje, setActivo } from "./store.js";
-import { confirmar, descargarJson, leerArchivo, toast } from "./util.js";
+import { normalizar } from "./model.js?v=2.6.1";
+import { buscarPersonaje, estadisticasDe, guardarPersonaje, setActivo } from "./store.js?v=2.6.1";
+import { confirmar, descargarJson, leerArchivo, toast } from "./util.js?v=2.6.1";
 
 const nombreArchivo = (nombre) =>
   `pj-${String(nombre ?? "")

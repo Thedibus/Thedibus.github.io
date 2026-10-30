@@ -1,10 +1,10 @@
 /** Diálogo de creación y edición de fichas. */
 
-import { escribirBurbujas } from "../bubbles.js";
-import { CARACTERISTICAS, HABILIDADES, abrev, bonoCompetencia, modificador, normalizar, personajeNuevo } from "../model.js";
-import { estadisticasDe, guardarPersonaje } from "../store.js";
-import { $, conSigno, esc, toast } from "../util.js";
-import { ajustarVentana, controlesVentana, manejarVentana } from "./ventana.js";
+import { escribirBurbujas } from "../bubbles.js?v=2.6.1";
+import { CARACTERISTICAS, HABILIDADES, abrev, bonoCompetencia, modificador, normalizar, personajeNuevo } from "../model.js?v=2.6.1";
+import { estadisticasDe, guardarPersonaje } from "../store.js?v=2.6.1";
+import { $, conSigno, esc, toast } from "../util.js?v=2.6.1";
+import { ajustarVentana, controlesVentana, manejarVentana } from "./ventana.js?v=2.6.1";
 
 function plantilla(pj, esNuevo, est) {
   const mods = Object.fromEntries(CARACTERISTICAS.map((c) => [c.clave, modificador(pj.caracteristicas[c.clave])]));
@@ -73,6 +73,15 @@ function plantilla(pj, esNuevo, est) {
       </fieldset>
 
       <fieldset>
+        <legend>Salvaciones competentes</legend>
+        <div class="salvaciones">
+          ${CARACTERISTICAS.map(
+            (c) => `<label><input type="checkbox" name="sal-${c.clave}" ${pj.salvaciones[c.clave] ? "checked" : ""} />${c.abrev}</label>`
+          ).join("")}
+        </div>
+      </fieldset>
+
+      <fieldset>
         <legend>Características</legend>
         <div class="grid-3">
           ${CARACTERISTICAS.map(
@@ -82,15 +91,6 @@ function plantilla(pj, esNuevo, est) {
               <input type="number" min="1" max="40" name="car-${c.clave}" data-car="${c.clave}" value="${pj.caracteristicas[c.clave]}" />
               <span class="mod" data-mod="${c.clave}">${conSigno(mods[c.clave])}</span>
             </div>`
-          ).join("")}
-        </div>
-      </fieldset>
-
-      <fieldset>
-        <legend>Salvaciones competentes</legend>
-        <div class="salvaciones">
-          ${CARACTERISTICAS.map(
-            (c) => `<label><input type="checkbox" name="sal-${c.clave}" ${pj.salvaciones[c.clave] ? "checked" : ""} />${c.abrev}</label>`
           ).join("")}
         </div>
       </fieldset>
@@ -167,7 +167,7 @@ function filaNota(valor = "") {
 const FILAS = { rasgos: filaRasgo, inventario: filaInventario, notas: filaNota };
 
 /** Abre el diálogo. Sin argumento crea un PJ nuevo. */
-export function abrirEditor(pj = null) {
+export function abrirEditor(pj = null, { grande } = {}) {
   const dialogo = $("#dialogo-pj");
   if (!dialogo) return;
 
@@ -263,7 +263,7 @@ export function abrirEditor(pj = null) {
 
   if (dialogo.open) dialogo.close();
   dialogo.showModal();
-  ajustarVentana(dialogo);
+  ajustarVentana(dialogo, grande);
   setTimeout(() => formulario.elements.nombre.select?.(), 60);
 }
 

@@ -1,7 +1,7 @@
 /** Pestaña «Ficha»: la hoja de consulta del personaje activo. */
 
-import { CARACTERISTICAS, derivar, resumenClase } from "../model.js";
-import { escribirBurbujas } from "../bubbles.js";
+import { CARACTERISTICAS, derivar, resumenClase } from "../model.js?v=2.6.1";
+import { escribirBurbujas } from "../bubbles.js?v=2.6.1";
 import {
   buscarPersonaje,
   contextoToken,
@@ -12,12 +12,12 @@ import {
   setActivo,
   store,
   vincularToken,
-} from "../store.js";
-import { conSigno, esc, toast } from "../util.js";
-import { bloqueRasgos, bloqueRetrato, bloqueStats, bloqueVida, chipsHabilidades, listaInventario, listaNotas, mensajeEstado, rejillaHabilidades } from "./comun.js";
-import { abrirEditor } from "./editor.js";
-import { exportarPersonaje } from "../transferencia.js";
-import { ajustarVentana, controlesVentana, manejarVentana } from "./ventana.js";
+} from "../store.js?v=2.6.1";
+import { conSigno, esc, toast } from "../util.js?v=2.6.1";
+import { bloqueRasgos, bloqueRetrato, bloqueStats, bloqueVida, chipsHabilidades, listaInventario, listaNotas, mensajeEstado, rejillaHabilidades } from "./comun.js?v=2.6.1";
+import { abrirEditor } from "./editor.js?v=2.6.1";
+import { exportarPersonaje } from "../transferencia.js?v=2.6.1";
+import { ajustarVentana, controlesVentana, manejarVentana } from "./ventana.js?v=2.6.1";
 
 let raiz = null;
 let fichaAbiertaId = null;
@@ -311,8 +311,9 @@ async function alClicDialogo(evento) {
   if (editar) {
     const pj = buscarPersonaje(editar.dataset.editar);
     if (pj) {
+      const estabaGrande = Boolean(dialogo?.classList.contains("ventana-grande"));
       dialogo?.close();
-      abrirEditor(pj);
+      abrirEditor(pj, { grande: estabaGrande });
     }
     return;
   }

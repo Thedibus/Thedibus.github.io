@@ -1,14 +1,14 @@
 /** Arranque del popover: pestañas, ajustes e importación. */
 
-import OBR from "../vendor/owlbear-sdk.js";
-import { ROL_ETIQUETA } from "./config.js";
-import { normalizar, personajeNuevo } from "./model.js";
-import { desvincularTodosLosTokens, estadisticasDe, iniciarTienda, reemplazarBiblioteca, setActivo, store } from "./store.js";
-import { $, $$, confirmar, descargarJson, esc, leerArchivo, toast } from "./util.js";
-import { abrirEditor } from "./ui/editor.js";
-import { montarDialogoFicha, montarFicha, pintarFicha, pintarFichaCompleta } from "./ui/ficha.js";
-import { montarPjs, pintarPjs } from "./ui/pjs.js";
-import { importarPersonaje } from "./transferencia.js";
+import OBR from "../vendor/owlbear-sdk.js?v=2.6.1";
+import { ROL_ETIQUETA, VERSION } from "./config.js?v=2.6.1";
+import { normalizar, personajeNuevo } from "./model.js?v=2.6.1";
+import { desvincularTodosLosTokens, estadisticasDe, iniciarTienda, reemplazarBiblioteca, setActivo, store } from "./store.js?v=2.6.1";
+import { $, $$, confirmar, descargarJson, esc, leerArchivo, toast } from "./util.js?v=2.6.1";
+import { abrirEditor } from "./ui/editor.js?v=2.6.1";
+import { montarDialogoFicha, montarFicha, pintarFicha, pintarFichaCompleta } from "./ui/ficha.js?v=2.6.1";
+import { montarPjs, pintarPjs } from "./ui/pjs.js?v=2.6.1";
+import { importarPersonaje } from "./transferencia.js?v=2.6.1";
 
 let panelActivo = "ficha";
 let renderPendiente = false;
@@ -208,7 +208,7 @@ function pintarAjustes() {
       <fieldset>
         <legend>Información</legend>
         <p class="ayuda">
-          <strong>Mesa de Héroes</strong> · por <strong>Thedibus</strong><br />
+          <strong>Mesa de Héroes</strong> · por <strong>Thedibus</strong> · v${esc(VERSION)}<br />
           Rol: ${esc(ROL_ETIQUETA[store.rol] ?? store.rol)}<br />
           Sala: <span title="${esc(OBR.room.id)}">${esc(OBR.room.id.slice(0, 8))}…</span><br />
           PJs: ${store.personajes.length} · Tokens vinculados: ${vinculados}

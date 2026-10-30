@@ -1,6 +1,6 @@
 /** Pestaña «PJs»: biblioteca de personajes de la mesa. */
 
-import { resumenClase } from "../model.js";
+import { resumenClase } from "../model.js?v=2.6.1";
 import {
   borrarPersonaje,
   buscarPersonaje,
@@ -9,12 +9,12 @@ import {
   setActivo,
   store,
   vincularToken,
-} from "../store.js";
-import { confirmar, esc, toast } from "../util.js";
-import { mensajeEstado, bloqueVida } from "./comun.js";
-import { abrirEditor } from "./editor.js";
-import { abrirFichaCompleta } from "./ficha.js";
-import { exportarPersonaje } from "../transferencia.js";
+} from "../store.js?v=2.6.1";
+import { confirmar, esc, toast } from "../util.js?v=2.6.1";
+import { mensajeEstado, bloqueVida } from "./comun.js?v=2.6.1";
+import { abrirEditor } from "./editor.js?v=2.6.1";
+import { abrirFichaCompleta } from "./ficha.js?v=2.6.1";
+import { exportarPersonaje } from "../transferencia.js?v=2.6.1";
 
 let raiz = null;
 

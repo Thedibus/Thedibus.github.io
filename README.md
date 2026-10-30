@@ -70,6 +70,7 @@ sitios muestran siempre el mismo valor.
 | No aparecen en un token | El token debe ser una imagen de la capa **Personaje** o **Montura** |
 | No aparece el botón | Revisa la URL y recarga con **Ctrl+F5** |
 | El icono o el nombre se ven mal | **Ctrl+F5**; si sigue, quita y vuelve a añadir la extensión |
+| La interfaz se ve antigua | Mira la versión en **Ajustes**; si no es la última, quita y vuelve a añadir la extensión |
 
 ## Autor
 

@@ -1,7 +1,7 @@
 /** Piezas de interfaz compartidas por la ficha y la tarjeta del token. */
 
-import { CARACTERISTICAS, HABILIDADES, abrev, derivar, estadoVida } from "../model.js";
-import { conSigno, esc } from "../util.js";
+import { CARACTERISTICAS, HABILIDADES, abrev, derivar, estadoVida } from "../model.js?v=2.6.1";
+import { conSigno, esc } from "../util.js?v=2.6.1";
 
 /** Retrato del token vinculado; si no hay token, la inicial del PJ. */
 export function bloqueRetrato(pj, est, { grande = false } = {}) {
