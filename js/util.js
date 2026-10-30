@@ -32,7 +32,7 @@ export function toast(mensaje, tipo = "info", ms = 2800) {
   const contenedor = document.getElementById("toasts");
   if (!contenedor) return;
   const nodo = document.createElement("div");
-  nodo.className = "toast";
+  nodo.className = "aviso-toast";
   nodo.dataset.tipo = tipo;
   nodo.textContent = mensaje;
   contenedor.append(nodo);

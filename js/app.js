@@ -178,6 +178,7 @@ function activarPanel(nombre) {
     const activa = pestana.dataset.panel === nombre;
     pestana.classList.toggle("es-activa", activa);
     pestana.setAttribute("aria-selected", activa ? "true" : "false");
+    pestana.tabIndex = activa ? 0 : -1;
   }
   if (nombre === "ficha") pintarFicha();
   if (nombre === "pjs") pintarPjs();
@@ -327,6 +328,22 @@ function conectarControles() {
   for (const pestana of $$(".pestana")) {
     pestana.addEventListener("click", () => activarPanel(pestana.dataset.panel));
   }
+
+  // Navegación por teclado entre pestañas (patrón ARIA de tablist).
+  $(".pestanas")?.addEventListener("keydown", (evento) => {
+    const pestanas = $$(".pestana");
+    const actual = pestanas.indexOf(document.activeElement);
+    if (actual < 0) return;
+    let destino = null;
+    if (evento.key === "ArrowRight") destino = (actual + 1) % pestanas.length;
+    if (evento.key === "ArrowLeft") destino = (actual - 1 + pestanas.length) % pestanas.length;
+    if (evento.key === "Home") destino = 0;
+    if (evento.key === "End") destino = pestanas.length - 1;
+    if (destino === null) return;
+    evento.preventDefault();
+    pestanas[destino].focus();
+    activarPanel(pestanas[destino].dataset.panel);
+  });
 
   $("#btn-nuevo")?.addEventListener("click", () => abrirEditor(null));
   $("#btn-importar-pj")?.addEventListener("click", () => $("#input-pj").click());

@@ -65,9 +65,9 @@ export function mensajeEstado(contexto) {
 /** Rejilla de las seis características: abreviatura arriba, modulador y valor. */
 export function bloqueStats(pj) {
   const d = derivar(pj);
-  return `<div class="stats">
+  return `<div class="stats-heroe">
     ${CARACTERISTICAS.map(
-      (c) => `<div class="stat" title="${c.nombre}">
+      (c) => `<div class="stat-heroe" title="${c.nombre}">
         <span class="stat-abbr">${c.abrev}</span>
         <b class="stat-mod">${conSigno(d.mods[c.clave])}</b>
         <span class="stat-score">${pj.caracteristicas[c.clave]}</span>

@@ -249,7 +249,7 @@ function plantillaCompleta(pj) {
       ${bloqueRasgos(pj)}
     </fieldset>
 
-    <fieldset>
+    <fieldset class="ancho-3">
       <legend>Inventario</legend>
       ${listaInventario(pj.inventario)}
     </fieldset>
