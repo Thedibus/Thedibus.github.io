@@ -1,10 +1,10 @@
 /** Tarjeta compacta que aparece en el menú contextual del token. */
 
-import OBR from "../vendor/owlbear-sdk.js?v=2.6.1";
-import { resumenClase } from "./model.js?v=2.6.1";
-import { buscarPersonaje, contextoToken, estadisticasDe, iniciarTienda, store } from "./store.js?v=2.6.1";
-import { esc } from "./util.js?v=2.6.1";
-import { bloqueRasgos, bloqueRetrato, bloqueStats, bloqueVida, chipsHabilidades } from "./ui/comun.js?v=2.6.1";
+import OBR from "../vendor/owlbear-sdk.js?v=2.7.0";
+import { resumenClase } from "./model.js?v=2.7.0";
+import { buscarPersonaje, contextoToken, estadisticasDe, iniciarTienda, store } from "./store.js?v=2.7.0";
+import { esc } from "./util.js?v=2.7.0";
+import { bloqueRasgos, bloqueRetrato, bloqueStats, bloqueVida, chipsHabilidades } from "./ui/comun.js?v=2.7.0";
 
 let raiz = null;
 let version = 0;

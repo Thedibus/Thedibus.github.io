@@ -1,10 +1,10 @@
 /** Diálogo de creación y edición de fichas. */
 
-import { escribirBurbujas } from "../bubbles.js?v=2.6.1";
-import { CARACTERISTICAS, HABILIDADES, abrev, bonoCompetencia, modificador, normalizar, personajeNuevo } from "../model.js?v=2.6.1";
-import { estadisticasDe, guardarPersonaje } from "../store.js?v=2.6.1";
-import { $, conSigno, esc, toast } from "../util.js?v=2.6.1";
-import { ajustarVentana, controlesVentana, manejarVentana } from "./ventana.js?v=2.6.1";
+import { escribirBurbujas } from "../bubbles.js?v=2.7.0";
+import { CARACTERISTICAS, HABILIDADES, abrev, bonoCompetencia, modificador, normalizar, personajeNuevo } from "../model.js?v=2.7.0";
+import { estadisticasDe, guardarPersonaje } from "../store.js?v=2.7.0";
+import { $, conSigno, esc, toast } from "../util.js?v=2.7.0";
+import { ajustarVentana, controlesVentana, manejarVentana } from "./ventana.js?v=2.7.0";
 
 function plantilla(pj, esNuevo, est) {
   const mods = Object.fromEntries(CARACTERISTICAS.map((c) => [c.clave, modificador(pj.caracteristicas[c.clave])]));

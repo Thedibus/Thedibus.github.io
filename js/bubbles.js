@@ -11,8 +11,8 @@
  * y leer de ahí nos da los valores que el jugador acaba de tocar en el mapa.
  */
 
-import OBR from "../vendor/owlbear-sdk.js?v=2.6.1";
-import { BURBUJAS } from "./config.js?v=2.6.1";
+import OBR from "../vendor/owlbear-sdk.js?v=2.7.0";
+import { BURBUJAS } from "./config.js?v=2.7.0";
 
 const numero = (valor, respaldo = 0) =>
   typeof valor === "number" && Number.isFinite(valor) ? valor : respaldo;

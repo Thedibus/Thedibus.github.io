@@ -6,7 +6,7 @@
 export const EXT_ID = "com.mesadeheroes";
 
 /** Se muestra en Ajustes para saber qué versión está cargada. */
-export const VERSION = "2.6.1";
+export const VERSION = "2.7.0";
 
 export const KEYS = {
   /** Biblioteca de PJs, compartida en los metadatos de la sala. */

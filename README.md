@@ -49,9 +49,11 @@ La ficha mostrará la imagen del token y compartirá con él la vida y la CA.
 
 - **Ficha**: resumen del personaje activo con PG, CA, características y rasgos.
 - **Ver ficha entera**: todos los datos, con PG y CA editables. Se abre como una
-  ventana: **⤢** la amplía, **⤡** la reduce y **✕** la cierra. Ampliada ocupa
-  casi todo el panel.
-- **Editar ficha**: la misma ventana, con los mismos controles de tamaño y cierre.
+  ventana: pequeña si el panel está reducido y ampliada si el panel está ampliado.
+  **⤢ / ⤡** cambia el tamaño, **✕** la cierra y puedes moverla arrastrando la
+  cabecera.
+- **Editar ficha**: la misma ventana, con los mismos controles de tamaño, cierre
+  y arrastre.
 - **Clic derecho en el token → Ficha del PJ**: la misma información sin abrir el
   panel.
 - **⤢** amplía el panel y **⤡** lo devuelve a su tamaño.

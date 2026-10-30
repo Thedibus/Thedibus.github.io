@@ -1,14 +1,15 @@
 /** Arranque del popover: pestañas, ajustes e importación. */
 
-import OBR from "../vendor/owlbear-sdk.js?v=2.6.1";
-import { ROL_ETIQUETA, VERSION } from "./config.js?v=2.6.1";
-import { normalizar, personajeNuevo } from "./model.js?v=2.6.1";
-import { desvincularTodosLosTokens, estadisticasDe, iniciarTienda, reemplazarBiblioteca, setActivo, store } from "./store.js?v=2.6.1";
-import { $, $$, confirmar, descargarJson, esc, leerArchivo, toast } from "./util.js?v=2.6.1";
-import { abrirEditor } from "./ui/editor.js?v=2.6.1";
-import { montarDialogoFicha, montarFicha, pintarFicha, pintarFichaCompleta } from "./ui/ficha.js?v=2.6.1";
-import { montarPjs, pintarPjs } from "./ui/pjs.js?v=2.6.1";
-import { importarPersonaje } from "./transferencia.js?v=2.6.1";
+import OBR from "../vendor/owlbear-sdk.js?v=2.7.0";
+import { ROL_ETIQUETA, VERSION } from "./config.js?v=2.7.0";
+import { normalizar, personajeNuevo } from "./model.js?v=2.7.0";
+import { desvincularTodosLosTokens, estadisticasDe, iniciarTienda, reemplazarBiblioteca, setActivo, store } from "./store.js?v=2.7.0";
+import { $, $$, confirmar, descargarJson, esc, leerArchivo, toast } from "./util.js?v=2.7.0";
+import { abrirEditor } from "./ui/editor.js?v=2.7.0";
+import { montarDialogoFicha, montarFicha, pintarFicha, pintarFichaCompleta } from "./ui/ficha.js?v=2.7.0";
+import { montarPjs, pintarPjs } from "./ui/pjs.js?v=2.7.0";
+import { montarVentana } from "./ui/ventana.js?v=2.7.0";
+import { importarPersonaje } from "./transferencia.js?v=2.7.0";
 
 let panelActivo = "ficha";
 let renderPendiente = false;
@@ -100,6 +101,9 @@ async function arrancar() {
   montarFicha($("#panel-ficha"));
   montarDialogoFicha();
   montarPjs($("#lista-pjs"));
+  montarVentana(document.getElementById("dialogo-ficha"), "ficha");
+  montarVentana(document.getElementById("dialogo-pj"), "pj");
+  montarVentana(document.getElementById("dialogo-confirmar"), "confirmar");
 
   conectarControles();
   store.alCambiar(programarRender);

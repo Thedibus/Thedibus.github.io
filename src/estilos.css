@@ -821,13 +821,13 @@ body.tarjeta {
 /* ------------------------------------------------ ventanas y microinteracciones */
 
 .dialogo {
-  width: min(520px, calc(100vw - 16px));
-  max-height: min(86vh, 800px);
+  width: min(480px, calc(100vw - 48px));
+  max-height: min(74vh, 640px);
   border-radius: 12px;
   box-shadow: 0 24px 70px rgba(0, 0, 0, 0.5);
 }
 
-#dialogo-confirmar { width: min(380px, calc(100vw - 16px)); }
+#dialogo-confirmar { width: min(380px, calc(100vw - 48px)); }
 
 .dialogo-cabecera {
   background: color-mix(in oklab, var(--bg-elev) 78%, var(--bg-elev-2));
@@ -856,25 +856,43 @@ body.tarjeta {
 .btn-ventana[data-cerrar]:hover,
 .ventana-controles .btn-ventana[data-confirmar="no"]:hover { background: var(--mal); color: #fff; }
 .btn-ventana:focus-visible { outline: 2px solid var(--acento); outline-offset: 1px; }
+.dialogo-cabecera { cursor: grab; user-select: none; touch-action: none; }
+.dialogo.arrastrando { will-change: transform; }
+.dialogo.arrastrando .dialogo-cabecera { cursor: grabbing; }
+
+.dialogo-cuerpo { overflow-x: hidden; }
+.dialogo-cuerpo > * { min-width: 0; }
+fieldset { min-width: 0; }
+.mini-grid > div,
+.save,
+.stat-heroe,
+.vida-tile,
+.habilidad { min-width: 0; }
+.mini-grid span,
+.save span,
+.save b { overflow-wrap: anywhere; }
+.fila-auxiliar > * { min-width: 0; }
 
 .dialogo-ficha,
-.dialogo-pj { width: min(520px, calc(100vw - 16px)); }
+.dialogo-pj { width: min(480px, calc(100vw - 48px)); }
 
 .dialogo-ficha.ventana-grande,
 .dialogo-pj.ventana-grande {
-  width: min(calc(100vw - 16px), 980px);
-  height: calc(100vh - 16px);
-  height: calc(100dvh - 16px);
-  max-height: calc(100vh - 16px);
-  max-height: calc(100dvh - 16px);
+  width: min(calc(100vw - 24px), 960px);
+  height: calc(100vh - 24px);
+  height: calc(100dvh - 24px);
+  max-height: calc(100vh - 24px);
+  max-height: calc(100dvh - 24px);
 }
 
 .dialogo-ficha .dialogo-cuerpo { grid-template-columns: 1fr; }
 .dialogo-ficha .habilidades { grid-template-columns: 1fr 1fr; }
 .dialogo-ficha.ventana-grande .habilidades { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 
-.salvaciones-panel { display: grid; gap: 10px; grid-template-columns: 1fr; align-items: start; }
-.dialogo-ficha.ventana-grande .salvaciones-panel { grid-template-columns: minmax(0, 1fr) minmax(0, 1.8fr); }
+.fila-auxiliar { display: grid; gap: 10px; grid-template-columns: 1fr; align-items: start; }
+.dialogo-ficha.ventana-grande .fila-auxiliar { grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.6fr); }
+.bloque-derivados, .bloque-salvaciones { min-width: 0; }
+.dialogo-ficha.ventana-grande .bloque-derivados { padding-top: 14px; }
 
 .dialogo-pj.ventana-grande .dialogo-cuerpo { grid-template-columns: 1fr 1fr; }
 .dialogo-pj.ventana-grande .ancho-completo { grid-column: 1 / -1; }

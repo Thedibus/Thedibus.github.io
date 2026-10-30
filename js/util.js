@@ -1,5 +1,7 @@
 /** Utilidades pequeñas y sin dependencias. */
 
+import { colocarVentana } from "./ui/ventana.js?v=2.7.0";
+
 export const $ = (selector, raiz = document) => raiz.querySelector(selector);
 export const $$ = (selector, raiz = document) => [...raiz.querySelectorAll(selector)];
 
@@ -81,6 +83,9 @@ export function confirmar(mensaje, { titulo = "Confirmar", boton = "Sí, continu
 
   return new Promise((resolver) => {
     dialogo.addEventListener("close", () => resolver(dialogo.returnValue === "si"), { once: true });
-    if (!dialogo.open) dialogo.showModal();
+    if (!dialogo.open) {
+      dialogo.showModal();
+      colocarVentana(dialogo);
+    }
   });
 }

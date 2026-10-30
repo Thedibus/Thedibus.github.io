@@ -3,8 +3,8 @@
  * Se ejecuta aunque el popover esté cerrado.
  */
 
-import OBR from "../vendor/owlbear-sdk.js?v=2.6.1";
-import { EXT_ID } from "./config.js?v=2.6.1";
+import OBR from "../vendor/owlbear-sdk.js?v=2.7.0";
+import { EXT_ID } from "./config.js?v=2.7.0";
 
 const URL_TARJETA = new URL("../token-card.html", import.meta.url).href;
 

@@ -7,11 +7,11 @@
  *   para que las burbujas del mapa y esta ficha sean siempre el mismo dato.
  */
 
-import OBR from "../vendor/owlbear-sdk.js?v=2.6.1";
-import { escribirBurbujas, leerBurbujas } from "./bubbles.js?v=2.6.1";
-import { CLAVE_LOCAL_ACTIVO, KEYS } from "./config.js?v=2.6.1";
-import { normalizar } from "./model.js?v=2.6.1";
-import { clamp, uid } from "./util.js?v=2.6.1";
+import OBR from "../vendor/owlbear-sdk.js?v=2.7.0";
+import { escribirBurbujas, leerBurbujas } from "./bubbles.js?v=2.7.0";
+import { CLAVE_LOCAL_ACTIVO, KEYS } from "./config.js?v=2.7.0";
+import { normalizar } from "./model.js?v=2.7.0";
+import { clamp, uid } from "./util.js?v=2.7.0";
 
 export const store = {
   listo: false,

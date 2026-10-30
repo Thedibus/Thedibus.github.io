@@ -1,7 +1,7 @@
 /** Pestaña «Ficha»: la hoja de consulta del personaje activo. */
 
-import { CARACTERISTICAS, derivar, resumenClase } from "../model.js?v=2.6.1";
-import { escribirBurbujas } from "../bubbles.js?v=2.6.1";
+import { CARACTERISTICAS, derivar, resumenClase } from "../model.js?v=2.7.0";
+import { escribirBurbujas } from "../bubbles.js?v=2.7.0";
 import {
   buscarPersonaje,
   contextoToken,
@@ -12,12 +12,12 @@ import {
   setActivo,
   store,
   vincularToken,
-} from "../store.js?v=2.6.1";
-import { conSigno, esc, toast } from "../util.js?v=2.6.1";
-import { bloqueRasgos, bloqueRetrato, bloqueStats, bloqueVida, chipsHabilidades, listaInventario, listaNotas, mensajeEstado, rejillaHabilidades } from "./comun.js?v=2.6.1";
-import { abrirEditor } from "./editor.js?v=2.6.1";
-import { exportarPersonaje } from "../transferencia.js?v=2.6.1";
-import { ajustarVentana, controlesVentana, manejarVentana } from "./ventana.js?v=2.6.1";
+} from "../store.js?v=2.7.0";
+import { conSigno, esc, toast } from "../util.js?v=2.7.0";
+import { bloqueRasgos, bloqueRetrato, bloqueStats, bloqueVida, chipsHabilidades, listaInventario, listaNotas, mensajeEstado, rejillaHabilidades } from "./comun.js?v=2.7.0";
+import { abrirEditor } from "./editor.js?v=2.7.0";
+import { exportarPersonaje } from "../transferencia.js?v=2.7.0";
+import { ajustarVentana, controlesVentana, manejarVentana, sincronizarVentana } from "./ventana.js?v=2.7.0";
 
 let raiz = null;
 let fichaAbiertaId = null;
@@ -148,8 +148,12 @@ export function abrirFichaCompleta(id) {
   if (!pj || !dialogo) return;
   fichaAbiertaId = pj.id;
   dialogo.innerHTML = plantillaCompleta(pj);
-  if (!dialogo.open) dialogo.showModal();
-  ajustarVentana(dialogo);
+  if (!dialogo.open) {
+    dialogo.showModal();
+    ajustarVentana(dialogo);
+  } else {
+    sincronizarVentana(dialogo);
+  }
 }
 
 export function pintarFichaCompleta() {
@@ -165,6 +169,7 @@ export function pintarFichaCompleta() {
     return;
   }
   dialogo.innerHTML = plantillaCompleta(pj);
+  sincronizarVentana(dialogo);
 }
 
 function plantillaCompleta(pj) {
@@ -214,14 +219,17 @@ function plantillaCompleta(pj) {
           </div>`
     }
 
-    <fieldset class="ancho-completo">
-      <legend>Salvaciones</legend>
-      <div class="salvaciones-panel">
+    <div class="fila-auxiliar ancho-completo">
+      <div class="bloque-derivados">
         <div class="mini-grid">
           <div><span>Competencia</span><b>${conSigno(d.competencia)}</b></div>
           <div><span>Iniciativa</span><b>${conSigno(d.iniciativa)}</b></div>
           <div><span>Velocidad</span><b>${pj.velocidad} pies</b></div>
         </div>
+      </div>
+
+      <fieldset class="bloque-salvaciones">
+        <legend>Salvaciones</legend>
         <div class="saves">
           ${CARACTERISTICAS.map(
             (c) => `<div class="save" title="${c.nombre}">
@@ -231,8 +239,8 @@ function plantillaCompleta(pj) {
             </div>`
           ).join("")}
         </div>
-      </div>
-    </fieldset>
+      </fieldset>
+    </div>
 
     <fieldset class="ancho-completo">
       <legend>Características</legend>
