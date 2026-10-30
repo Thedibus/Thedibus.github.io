@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-label="Mesa redonda">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#3b1d6e"/>
+      <stop offset="1" stop-color="#17121f"/>
+    </linearGradient>
+    <linearGradient id="oro" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f6dca4"/>
+      <stop offset="1" stop-color="#c08a34"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="512" height="512" rx="112" fill="url(#bg)"/>
+
+  <g fill="#eec27a">
+    <circle cx="256" cy="58" r="20"/>
+    <circle cx="427" cy="157" r="20"/>
+    <circle cx="427" cy="355" r="20"/>
+    <circle cx="256" cy="454" r="20"/>
+    <circle cx="85" cy="355" r="20"/>
+    <circle cx="85" cy="157" r="20"/>
+  </g>
+
+  <circle cx="256" cy="256" r="166" fill="#2a1747" stroke="url(#oro)" stroke-width="14"/>
+  <circle cx="256" cy="256" r="130" fill="#331c55"/>
+  <circle cx="256" cy="256" r="130" fill="none" stroke="#7c3aed" stroke-width="3" opacity="0.55"/>
+
+  <g>
+    <path d="M256 204 L318 240 L256 268 L194 240 Z" fill="#f7f1e6"/>
+    <path d="M194 240 L256 268 L256 330 Z" fill="#b99ae4"/>
+    <path d="M318 240 L256 268 L256 330 Z" fill="#8a63c9"/>
+  </g>
+</svg>

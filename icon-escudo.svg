@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-label="Escudo y dado">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#3b1d6e"/>
+      <stop offset="1" stop-color="#17121f"/>
+    </linearGradient>
+    <linearGradient id="oro" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f6dca4"/>
+      <stop offset="1" stop-color="#c08a34"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="512" height="512" rx="112" fill="url(#bg)"/>
+  <path d="M256 82 L398 138 V258 C398 342 336 400 256 432 C176 400 114 342 114 258 V138 Z"
+        fill="#2a1747" stroke="url(#oro)" stroke-width="16" stroke-linejoin="round"/>
+
+  <g>
+    <path d="M256 158 L344 208 L256 244 L168 208 Z" fill="#f7f1e6"/>
+    <path d="M168 208 L256 244 L256 366 Z" fill="#b99ae4"/>
+    <path d="M344 208 L256 244 L256 366 Z" fill="#8a63c9"/>
+    <path d="M256 158 L344 208 L256 244 L168 208 Z" fill="none" stroke="#2a1747" stroke-opacity="0.25" stroke-width="4"/>
+  </g>
+
+  <circle cx="256" cy="250" r="7" fill="#eec27a"/>
+</svg>

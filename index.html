@@ -30,17 +30,17 @@
     </header>
 
     <nav class="pestanas" role="tablist" aria-label="Secciones">
-      <button class="pestana es-activa" role="tab" data-panel="ficha" aria-selected="true">Ficha</button>
-      <button class="pestana" role="tab" data-panel="pjs" aria-selected="false">PJs</button>
-      <button class="pestana pestana-icono" role="tab" data-panel="ajustes" aria-selected="false" title="Ajustes" aria-label="Ajustes">⚙</button>
+      <button id="tab-ficha" class="pestana es-activa" role="tab" data-panel="ficha" aria-selected="true" aria-controls="seccion-ficha" tabindex="0">Ficha</button>
+      <button id="tab-pjs" class="pestana" role="tab" data-panel="pjs" aria-selected="false" aria-controls="seccion-pjs" tabindex="-1">PJs</button>
+      <button id="tab-ajustes" class="pestana pestana-icono" role="tab" data-panel="ajustes" aria-selected="false" aria-controls="seccion-ajustes" tabindex="-1" title="Ajustes" aria-label="Ajustes">⚙</button>
     </nav>
 
     <main class="contenido">
-      <section class="panel es-activa" data-panel="ficha" role="tabpanel">
+      <section id="seccion-ficha" class="panel es-activa" data-panel="ficha" role="tabpanel" aria-labelledby="tab-ficha">
         <div id="panel-ficha"></div>
       </section>
 
-      <section class="panel" data-panel="pjs" role="tabpanel">
+      <section id="seccion-pjs" class="panel" data-panel="pjs" role="tabpanel" aria-labelledby="tab-pjs">
         <div class="barra">
           <button id="btn-nuevo" class="btn primario">+ Nuevo PJ</button>
           <button id="btn-importar-pj" class="btn" title="Importar un solo personaje desde un archivo JSON">Importar PJ</button>
@@ -50,7 +50,7 @@
         <div id="lista-pjs" class="lista-pjs"></div>
       </section>
 
-      <section class="panel" data-panel="ajustes" role="tabpanel">
+      <section id="seccion-ajustes" class="panel" data-panel="ajustes" role="tabpanel" aria-labelledby="tab-ajustes">
         <div id="panel-ajustes"></div>
       </section>
     </main>

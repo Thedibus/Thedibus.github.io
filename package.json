@@ -1,0 +1,16 @@
+{
+  "name": "mesa-de-heroes",
+  "version": "2.4.0",
+  "private": true,
+  "type": "module",
+  "description": "Ficha de personaje para Owlbear Rodeo",
+  "scripts": {
+    "css": "tailwindcss -i src/estilos.css -o css/estilos.css --minify",
+    "css:watch": "tailwindcss -i src/estilos.css -o css/estilos.css --watch"
+  },
+  "devDependencies": {
+    "@tailwindcss/cli": "^4.3.0",
+    "daisyui": "^5.7.0",
+    "tailwindcss": "^4.3.0"
+  }
+}
